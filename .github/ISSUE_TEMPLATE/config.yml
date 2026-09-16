@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private security report / 私密安全反馈
+    url: https://github.com/fws94/project9-token-saver/security/advisories/new
+    about: Use this channel for sensitive vulnerability reports; see SECURITY.md if unavailable.

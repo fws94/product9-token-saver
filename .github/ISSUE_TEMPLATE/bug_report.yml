@@ -1,0 +1,39 @@
+name: Bug report / 缺陷报告
+description: Report a reproducible problem in existing behavior or documentation.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "The project is in early development. For sensitive security reports, use SECURITY.md. Do not paste credentials, private conversations or full device logs. 中文或英文均可。"
+  - type: input
+    id: version
+    attributes:
+      label: Commit or version / 提交或版本
+      description: A commit SHA, release tag, or the page you were reading.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 环境
+      description: OS, Python, host app and relevant tool versions. Include only what affects the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction / 复现步骤
+      description: Provide minimal steps and synthetic input where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected and actual result / 预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant evidence / 相关证据
+      description: Optional sanitized error excerpt or screenshot; exclude personal data.

@@ -9,3 +9,24 @@ Desktop.ini
 *.tmp
 reports/
 scratch/
+
+# Python and build output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local credentials and agent state
+.env
+.env.*
+!.env.example
+.codex/auth.json
+.codex/config.toml
+.codex/sessions/
+/.worktrees/

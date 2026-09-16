@@ -1,0 +1,16 @@
+name: Question or contribution help / 问题与贡献协助
+description: Ask about the current project or contributing to a planned task.
+title: "[Question]: "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question / 问题
+      description: Describe what you are trying to understand or contribute.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / 背景
+      description: Link relevant documentation or issues. Avoid sharing credentials or private logs.

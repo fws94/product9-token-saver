@@ -1,0 +1,30 @@
+name: Feature proposal / 功能建议
+description: Propose a focused improvement with a concrete use case.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and use case / 问题与使用场景
+      description: Explain the workflow and who would benefit.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / 预期行为
+      description: Describe the smallest useful change and alternatives considered.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation / 如何验证
+      description: Explain how to check correctness and any claimed efficiency improvement.
+    validations:
+      required: true
+  - type: input
+    id: related
+    attributes:
+      label: Related tasks / 相关任务
+      description: Link existing issues where applicable.
