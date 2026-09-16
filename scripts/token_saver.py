@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
-"""Offline Token Saver CLI foundation; runtime operations arrive in later issues."""
+"""Offline Token Saver CLI for result contracts and captured output views."""
 import argparse
 import sys
 
+from token_saver_lib.compact import compact_file
 from token_saver_lib.result import Result, SCHEMA_VERSION, STATUSES
+
+
+def positive_integer(value: str) -> int:
+    try:
+        number = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("must be a positive integer") from error
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return number
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -11,7 +22,18 @@ def main(argv: list[str] | None = None) -> int:
         description="Token Saver development CLI (Python 3.11+; no credentials required).")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("contract", help="print the versioned JSON result contract")
-    parser.parse_args(argv)
+    compact = commands.add_parser("compact", help="compact already captured UTF-8 output")
+    compact.add_argument("--input", required=True, help="path to the original captured artifact")
+    compact.add_argument("--format", default="generic", metavar="FORMAT",
+                         help="generic, git-status or test; unknown formats use a generic excerpt")
+    compact.add_argument("--max-lines", type=positive_integer, default=80,
+                         help="positive line budget; diagnostics may exceed it (default: 80)")
+    compact.add_argument("--raw", action="store_true", help="return the complete original text")
+    args = parser.parse_args(argv)
+    if args.command == "compact":
+        result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
     result = Result(
         operation="contract", status="completed", summary="Token Saver result contract",
         data={"schema_version": SCHEMA_VERSION, "statuses": list(STATUSES),

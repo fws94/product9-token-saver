@@ -3,7 +3,7 @@
 `python scripts/token_saver.py contract` prints the contract description inside
 an example result envelope. It performs no command execution, authentication,
 network access or filesystem writes. `--help` describes available commands.
-There are no runtime operations yet.
+The [compact command](compact-output.md) uses the same envelope for captured-output views.
 
 Helpers import `Result` from `scripts/token_saver_lib/result.py`. Construct with
 keyword arguments and call `to_dict()` or `to_json()` to validate and serialize.
@@ -53,7 +53,8 @@ CLI process exit codes are separate from `exit_code` in the result: `0` means a
 completed helper operation, `1` is reserved for other operational outcomes, and
 `2` means invalid invocation. Usage errors go to stderr without a JSON envelope.
 The current `contract` command only returns `0`; no command and unknown commands
-return `2`. Future operations must document their own data fields.
+return `2`. The `compact` command returns `1` for unreadable or invalid input.
+Future operations must document their own data fields.
 
 Consumers should reject unsupported schema versions and tolerate additional
 object fields in version 1. Breaking envelope changes require a new version.
