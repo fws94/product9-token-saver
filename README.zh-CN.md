@@ -4,15 +4,15 @@
 
 用于提高编程代理工作效率的小型 Skills 和确定性工具合集。
 
-项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个计划支持的环境是 Codex，独立工具尽可能保持可移植。
+项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个开发集成环境是 Codex，独立工具尽可能保持可移植。
 
-> **当前状态：早期开发。** 已实现开发版插件清单、离线 CLI 和版本化结果契约。运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前没有正式发布版本；可以安装仅含元数据的开发版插件。
+> **当前状态：早期开发。** 已实现开发版插件、离线 CLI、结果契约和已捕获输出精简。其余运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前没有正式发布版本；可以安装包含 compact-output Skill 的开发版插件。
 
-## 计划提供的能力
+## 当前能力与路线图
 
 | 能力 | 预期行为 | 开发任务 |
 | --- | --- | --- |
-| 输出精简 | 压缩重复命令输出，保留错误与证据入口 | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| 输出精简 | 已实现：精简已捕获日志，保留次数、错误与证据入口 | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
 | 检查运行器 | 执行现有 test、build、lint，返回简洁结果 | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
 | 精准检索 | 返回相关路径、行号和必要片段 | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
 | 批量状态查询 | 减少重复查询，汇总 PR、CI 和工单状态 | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
@@ -38,7 +38,7 @@ python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
 
-如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库与工具结果契约。可离线运行 `python scripts/token_saver.py --help` 或 `python scripts/token_saver.py contract`。参见[结果契约](docs/result-contract.md)及[开发版安装与移除](docs/development-install.md)（详细文档为英文）。运行时省 token 操作尚未实现。已验证 Windows CLI 发现与安装；桌面 UI 和其他平台尚未验证。
+如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库与工具结果契约。可离线运行 `python scripts/token_saver.py --help` 或 `python scripts/token_saver.py contract`。参见[结果契约](docs/result-contract.md)及[开发版安装与移除](docs/development-install.md)（详细文档为英文）。可通过 `python scripts/token_saver.py compact --input LOG --format test --max-lines 80` 精简已捕获输出，参见[行为与限制](docs/compact-output.md)。其余运行时操作仍在规划中。已验证 Windows CLI 精简与开发版安装；桌面 UI 和其他平台尚未验证。
 
 先阅读[贡献指南](CONTRIBUTING.md)，再从[路线图](docs/ROADMAP.md)选择任务。欢迎文档改进、最小复现、平台验证与计量反馈，也欢迎中文或英文 Issue、Pull Request。
 
@@ -47,8 +47,8 @@ python -m unittest discover -s tests -v
 ```text
 .github/       Issue 表单、PR 模板、维护者信息与 CI
 docs/          路线图、设计方向与测量规则
-scripts/       仓库检查、离线 CLI 和共享结果契约
-skills/        为审核后的 Skills 预留，目前为空
+scripts/       仓库检查、CLI、结果契约与输出精简工具
+skills/        compact-output Skill；其余 Skills 仍在规划中
 tests/         仓库工具的测试
 ```
 

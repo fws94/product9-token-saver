@@ -4,15 +4,15 @@
 
 Small skills and deterministic helpers for more efficient coding-agent workflows.
 
-Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first planned integration; helpers should stay portable where practical.
+Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first development integration; helpers should stay portable where practical.
 
-> **Status: early development.** The development plugin manifest, offline CLI and versioned result contract are implemented. Runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a metadata-only development installation is available.
+> **Status: early development.** The development plugin, offline CLI, result contract and captured-output compaction are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with the compact-output skill is available.
 
-## Planned capabilities
+## Capabilities and roadmap
 
 | Capability | Intended behavior | Tracking |
 | --- | --- | --- |
-| Compact output | Reduce repetitive command output and retain diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| Compact output | Implemented: compact captured logs with counts and diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
 | Run checks | Execute existing test, build and lint commands with concise results | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
 | Repository lookup | Return relevant paths, line numbers and bounded excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
 | Batch status | Collect PR, CI and issue status with fewer repeated calls | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
@@ -38,7 +38,7 @@ python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
 
-On systems where Python is named `python3`, use that command instead. These commands check the repository and helper contract. Try `python scripts/token_saver.py --help` or `python scripts/token_saver.py contract` offline. See the [result contract](docs/result-contract.md) and [development installation/removal](docs/development-install.md). Runtime token-saving operations are not implemented yet. Windows CLI discovery and installation were tested; desktop UI and other platforms remain unverified.
+On systems where Python is named `python3`, use that command instead. These commands check the repository and helper contract. Try `python scripts/token_saver.py --help` or `python scripts/token_saver.py contract` offline. See the [result contract](docs/result-contract.md) and [development installation/removal](docs/development-install.md). Use `python scripts/token_saver.py compact --input LOG --format test --max-lines 80` for captured output; see [compaction behavior and limits](docs/compact-output.md). Other runtime operations remain planned. Windows CLI compaction and development installation were tested; desktop UI and other platforms remain unverified.
 
 Start with [CONTRIBUTING.md](CONTRIBUTING.md), then choose a task from the [roadmap](docs/ROADMAP.md). Documentation improvements, reproducible examples, platform checks and measurement feedback are welcome. English and Chinese issues and pull requests are both welcome.
 
@@ -47,8 +47,8 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md), then choose a task from the [road
 ```text
 .github/       Issue forms, PR template, ownership and CI
 docs/          Roadmap, design direction and measurement rules
-scripts/       Repository checks, offline CLI and shared result contract
-skills/        Reserved for reviewed skills; currently empty
+scripts/       Repository checks, CLI, result contract and compaction helper
+skills/        compact-output skill; other skills remain planned
 tests/         Tests for repository tooling
 ```
 
