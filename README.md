@@ -6,18 +6,18 @@ Small skills and deterministic helpers for more efficient coding-agent workflows
 
 Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first planned integration; helpers should stay portable where practical.
 
-> **Status: early development.** This repository currently contains project documentation, collaboration templates and repository checks. The runtime helpers and installable plugin are planned in [issues #1–#10](https://github.com/fws94/project9-token-saver/issues). There is no installable release yet.
+> **Status: early development.** This repository currently contains project documentation, collaboration templates and repository checks. The runtime helpers and installable plugin are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no installable release yet.
 
 ## Planned capabilities
 
 | Capability | Intended behavior | Tracking |
 | --- | --- | --- |
-| Compact output | Reduce repetitive command output and retain diagnostic evidence | [#2](https://github.com/fws94/project9-token-saver/issues/2) |
-| Run checks | Execute existing test, build and lint commands with concise results | [#3](https://github.com/fws94/project9-token-saver/issues/3) |
-| Repository lookup | Return relevant paths, line numbers and bounded excerpts | [#4](https://github.com/fws94/project9-token-saver/issues/4) |
-| Batch status | Collect PR, CI and issue status with fewer repeated calls | [#5](https://github.com/fws94/project9-token-saver/issues/5) |
-| Routine operations | Delegate explicitly authorized submissions and issue updates | [#6](https://github.com/fws94/project9-token-saver/issues/6), [#7](https://github.com/fws94/project9-token-saver/issues/7) |
-| Usage reports | Measure recorded input, cached input and output across local reports | [#8](https://github.com/fws94/project9-token-saver/issues/8) |
+| Compact output | Reduce repetitive command output and retain diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| Run checks | Execute existing test, build and lint commands with concise results | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
+| Repository lookup | Return relevant paths, line numbers and bounded excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
+| Batch status | Collect PR, CI and issue status with fewer repeated calls | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
+| Routine operations | Delegate explicitly authorized submissions and issue updates | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
+| Usage reports | Measure recorded input, cached input and output across local reports | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
 
 ## Principles
 
@@ -32,8 +32,8 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 Git and Python 3.11 or newer are enough to run the repository checks. No API key is needed.
 
 ```bash
-git clone https://github.com/fws94/project9-token-saver.git
-cd project9-token-saver
+git clone https://github.com/fws94/product9-token-saver.git
+cd product9-token-saver
 python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
@@ -54,7 +54,7 @@ tests/         Tests for repository tooling
 
 ## Support and maintenance
 
-- Bugs, questions and proposals: [open an issue](https://github.com/fws94/project9-token-saver/issues/new/choose).
+- Bugs, questions and proposals: [open an issue](https://github.com/fws94/product9-token-saver/issues/new/choose).
 - Sensitive security reports: follow [SECURITY.md](SECURITY.md).
 - Maintainer responsibilities and review decisions: [GOVERNANCE.md](GOVERNANCE.md).
 - Community expectations: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

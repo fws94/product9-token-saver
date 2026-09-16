@@ -6,18 +6,18 @@
 
 项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个计划支持的环境是 Codex，独立工具尽可能保持可移植。
 
-> **当前状态：早期开发。** 仓库已提供项目文档、协作模板和基础检查。运行时工具与可安装插件仍在 [#1–#10 开发任务](https://github.com/fws94/project9-token-saver/issues)中推进，目前还没有可安装版本。
+> **当前状态：早期开发。** 仓库已提供项目文档、协作模板和基础检查。运行时工具与可安装插件仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前还没有可安装版本。
 
 ## 计划提供的能力
 
 | 能力 | 预期行为 | 开发任务 |
 | --- | --- | --- |
-| 输出精简 | 压缩重复命令输出，保留错误与证据入口 | [#2](https://github.com/fws94/project9-token-saver/issues/2) |
-| 检查运行器 | 执行现有 test、build、lint，返回简洁结果 | [#3](https://github.com/fws94/project9-token-saver/issues/3) |
-| 精准检索 | 返回相关路径、行号和必要片段 | [#4](https://github.com/fws94/project9-token-saver/issues/4) |
-| 批量状态查询 | 减少重复查询，汇总 PR、CI 和工单状态 | [#5](https://github.com/fws94/project9-token-saver/issues/5) |
-| 常规操作委派 | 将已明确授权的提交与工单更新交给适合的工作代理 | [#6](https://github.com/fws94/project9-token-saver/issues/6)、[#7](https://github.com/fws94/project9-token-saver/issues/7) |
-| 用量报告 | 区分输入、缓存输入与输出，汇总设备本地报告 | [#8](https://github.com/fws94/project9-token-saver/issues/8) |
+| 输出精简 | 压缩重复命令输出，保留错误与证据入口 | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| 检查运行器 | 执行现有 test、build、lint，返回简洁结果 | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
+| 精准检索 | 返回相关路径、行号和必要片段 | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
+| 批量状态查询 | 减少重复查询，汇总 PR、CI 和工单状态 | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
+| 常规操作委派 | 将已明确授权的提交与工单更新交给适合的工作代理 | [#6](https://github.com/fws94/product9-token-saver/issues/6)、[#7](https://github.com/fws94/product9-token-saver/issues/7) |
+| 用量报告 | 区分输入、缓存输入与输出，汇总设备本地报告 | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
 
 ## 设计原则
 
@@ -32,8 +32,8 @@
 准备 Git 与 Python 3.11 或更新版本即可运行仓库检查，不需要 API Key。
 
 ```bash
-git clone https://github.com/fws94/project9-token-saver.git
-cd project9-token-saver
+git clone https://github.com/fws94/product9-token-saver.git
+cd product9-token-saver
 python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
@@ -54,7 +54,7 @@ tests/         仓库工具的测试
 
 ## 反馈与维护
 
-- 缺陷、问题和建议：[创建 Issue](https://github.com/fws94/project9-token-saver/issues/new/choose)。
+- 缺陷、问题和建议：[创建 Issue](https://github.com/fws94/product9-token-saver/issues/new/choose)。
 - 敏感安全问题：[安全反馈说明](SECURITY.md)。
 - 维护责任和评审决策：[治理说明](GOVERNANCE.md)。
 - 社区交流规范：[行为准则](CODE_OF_CONDUCT.md)。

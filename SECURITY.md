@@ -6,7 +6,7 @@ Token Saver is in early development and has no released runtime package. Securit
 
 ## Report privately
 
-Use GitHub's [private vulnerability reporting form](https://github.com/fws94/project9-token-saver/security/advisories/new) for sensitive findings. If the form is unavailable, open an issue that only asks for a private reporting channel; omit exploit details, affected private data and credentials.
+Use GitHub's [private vulnerability reporting form](https://github.com/fws94/product9-token-saver/security/advisories/new) for sensitive findings. If the form is unavailable, open an issue that only asks for a private reporting channel; omit exploit details, affected private data and credentials.
 
 Useful reports describe the affected commit or version, platform, minimal reproduction, expected boundary and observed impact. Prefer synthetic examples. Never upload access tokens, full conversation histories or logs containing personal data.
 
@@ -19,4 +19,4 @@ Maintainers will assess the report and coordinate a fix and disclosure where app
 - Distinguish an uncertain remote write from a failed one before retrying.
 - Keep CI permissions minimal and pin external Actions to reviewed commits.
 
-Ordinary non-sensitive bugs should use the [bug report form](https://github.com/fws94/project9-token-saver/issues/new?template=bug_report.yml).
+Ordinary non-sensitive bugs should use the [bug report form](https://github.com/fws94/product9-token-saver/issues/new?template=bug_report.yml).
