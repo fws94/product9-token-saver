@@ -30,3 +30,8 @@ dist/
 .codex/config.toml
 .codex/sessions/
 /.worktrees/
+
+# Private local measurements and development installation state
+usage-reports/
+receipts/
+.codex/plugins/
