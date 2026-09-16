@@ -1,5 +1,6 @@
 """Behavioral checks for the small documentation validator."""
 import importlib.util
+from contextlib import chdir
 from pathlib import Path
 import sys
 import tempfile
@@ -53,6 +54,17 @@ class MarkdownLinkTests(unittest.TestCase):
         errors = CHECKS.check_links(self.doc, self.root)
         self.assertEqual(len(errors), 1)
         self.assertIn("UTF-8", errors[0])
+
+    def test_relative_document_path_is_normalized(self):
+        self.write_doc("# Guide\n")
+        with chdir(self.root):
+            self.assertEqual(CHECKS.check_links(Path("docs/guide.md"), self.root), [])
+
+    def test_document_outside_root_is_reported_without_reading(self):
+        outside = self.root.parent / "not-in-this-repository.md"
+        errors = CHECKS.check_links(outside, self.root)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("outside repository", errors[0])
 
 
 if __name__ == "__main__":

@@ -45,6 +45,9 @@ def prose_only(text):
 
 def check_links(path, root):
     root = root.resolve()
+    path = path.resolve()
+    if not path.is_relative_to(root):
+        return [f"{path.name}: document outside repository"]
     label = path.relative_to(root).as_posix()
     try:
         text = prose_only(path.read_text(encoding="utf-8-sig"))
