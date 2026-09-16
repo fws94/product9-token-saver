@@ -1,0 +1,11 @@
+# Local editor and operating-system files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# Local reports and scratch data
+*.log
+*.tmp
+reports/
+scratch/
