@@ -1,0 +1,20 @@
+{
+  "name": "token-saver",
+  "version": "0.1.0-dev.1",
+  "description": "Development foundation for Token Saver helpers.",
+  "author": {
+    "name": "Token Saver contributors"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Token Saver",
+    "shortDescription": "Offline helper contract and development foundation.",
+    "longDescription": "Development skeleton with an offline CLI and versioned result contract. Runtime skills are planned and are not included yet.",
+    "developerName": "Token Saver contributors",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": []
+  },
+  "license": "MIT",
+  "repository": "https://github.com/fws94/product9-token-saver"
+}

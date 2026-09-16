@@ -6,7 +6,7 @@
 
 项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个计划支持的环境是 Codex，独立工具尽可能保持可移植。
 
-> **当前状态：早期开发。** 仓库已提供项目文档、协作模板和基础检查。运行时工具与可安装插件仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前还没有可安装版本。
+> **当前状态：早期开发。** 已实现开发版插件清单、离线 CLI 和版本化结果契约。运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前没有正式发布版本；可以安装仅含元数据的开发版插件。
 
 ## 计划提供的能力
 
@@ -38,7 +38,7 @@ python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
 
-如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库基础内容，并非安装或运行规划中的省 token 功能。
+如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库与工具结果契约。可离线运行 `python scripts/token_saver.py --help` 或 `python scripts/token_saver.py contract`。参见[结果契约](docs/result-contract.md)及[开发版安装与移除](docs/development-install.md)（详细文档为英文）。运行时省 token 操作尚未实现。已验证 Windows CLI 发现与安装；桌面 UI 和其他平台尚未验证。
 
 先阅读[贡献指南](CONTRIBUTING.md)，再从[路线图](docs/ROADMAP.md)选择任务。欢迎文档改进、最小复现、平台验证与计量反馈，也欢迎中文或英文 Issue、Pull Request。
 
@@ -47,7 +47,7 @@ python -m unittest discover -s tests -v
 ```text
 .github/       Issue 表单、PR 模板、维护者信息与 CI
 docs/          路线图、设计方向与测量规则
-scripts/       仓库检查；运行时工具将通过开发任务加入
+scripts/       仓库检查、离线 CLI 和共享结果契约
 skills/        为审核后的 Skills 预留，目前为空
 tests/         仓库工具的测试
 ```
