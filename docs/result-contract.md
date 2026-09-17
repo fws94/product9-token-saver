@@ -4,7 +4,7 @@
 an example result envelope. It performs no command execution, authentication,
 network access or filesystem writes. `--help` describes available commands.
 The [compact command](compact-output.md) uses the same envelope for captured-output views.
-The [checks command](run-checks.md) records an executed check's actual exit code and duration. The [lookup command](repo-lookup.md) returns bounded paths and excerpts. The [status command](batch-status.md) returns aggregate read-only provider rows. The issue-admin skill uses this envelope for explicit issue writes and read-backs.
+The [checks command](run-checks.md) records an executed check's actual exit code and duration. The [lookup command](repo-lookup.md) returns bounded paths and excerpts. The [status command](batch-status.md) returns aggregate read-only provider rows. The issue-admin skill uses this envelope for explicit issue writes and read-backs. The usage and usage-merge commands use it for local reports.
 
 Helpers import `Result` from `scripts/token_saver_lib/result.py`. Construct with
 keyword arguments and call `to_dict()` or `to_json()` to validate and serialize.

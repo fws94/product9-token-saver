@@ -2,11 +2,13 @@
 """Offline Token Saver CLI for contracts, compaction, checks and lookup."""
 import argparse
 import math
+from pathlib import Path
 import sys
 
 from token_saver_lib.checks import run_checks
 from token_saver_lib.compact import compact_file
 from token_saver_lib.lookup import lookup
+from token_saver_lib.usage import collect_usage, merge_usage
 from token_saver_lib.status import collect_github_status
 from token_saver_lib.result import Result, SCHEMA_VERSION, STATUSES
 
@@ -71,6 +73,17 @@ def main(argv: list[str] | None = None) -> int:
     status_parser.add_argument("--repo", required=True, help="repository OWNER/REPO")
     status_parser.add_argument("--prs", type=positive_integer, nargs="+", required=True, metavar="NUMBER")
     status_parser.add_argument("--max-concurrency", type=positive_integer, default=4)
+    usage_parser = commands.add_parser("usage", help="collect a local device usage report")
+    usage_parser.add_argument("--start", required=True, help="inclusive local date YYYY-MM-DD")
+    usage_parser.add_argument("--end", required=True, help="inclusive local date YYYY-MM-DD")
+    usage_parser.add_argument("--utc-offset", required=True, type=float, metavar="HOURS")
+    usage_parser.add_argument("--device", required=True, help="device label")
+    usage_parser.add_argument("--input", default=None, help="usage log file or directory; default: ~/.codex/sessions")
+    usage_parser.add_argument("--output", required=True, help="report JSON path")
+    usage_parser.add_argument("--hash-receipts", action="store_true", help="store hashed response receipts without IDs")
+    merge_parser = commands.add_parser("usage-merge", help="merge local device usage reports")
+    merge_parser.add_argument("--inputs", nargs="+", required=True, metavar="PATH")
+    merge_parser.add_argument("--output", required=True, help="aggregate report JSON path")
     args = parser.parse_args(argv)
     if args.command == "checks":
         command = args.check_command
@@ -82,6 +95,23 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if result.status == "completed" else 1
     if args.command == "compact":
         result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
+    if args.command == "usage":
+        try:
+            source = args.input or (Path.home() / ".codex" / "sessions")
+            result = collect_usage(source=source, start=args.start, end=args.end,
+                                   utc_offset=args.utc_offset, device=args.device,
+                                   output=args.output, hash_receipts=args.hash_receipts)
+        except ValueError as error:
+            usage_parser.error(str(error))
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
+    if args.command == "usage-merge":
+        try:
+            result = merge_usage(args.inputs, args.output)
+        except ValueError as error:
+            merge_parser.error(str(error))
         print(result.to_json())
         return 0 if result.status == "completed" else 1
     if args.command == "status":
