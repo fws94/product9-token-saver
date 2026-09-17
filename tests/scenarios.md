@@ -31,7 +31,23 @@ fields requested by the packet and leaves ambiguous operations for reconciliatio
 
 ## Acceptance review
 
-The current repository skill contains the packet fields, explicit Luna model and
+The current repository skill contains explicit comment and field scope, packet fields, explicit Luna model and
 effort, configurable account wording, one-writer rule, no-recursion boundary,
 uncertain-write reconciliation, return fields and coexistence path. Reviewers
 should run the same scenarios with fresh synthetic state when changing the skill.
+
+## Issue administration scenarios
+
+These additional synthetic scenarios exercise `issue-admin` independently from
+submission. The expected result is field-scoped, provider-aware and read back.
+
+| Scenario | Required behavior |
+| --- | --- |
+| Description update on issue #42 | Send only the exact body, read back the body, and preserve title/labels/assignee/state |
+| Ambiguous assignee `Alex` | Return both stable account identifiers and ask; perform no write |
+| Unsupported state `awaiting review` | Show available states and ask; do not substitute a label or OPEN |
+| Missing connector | Report the unavailable capability; do not install or expand access |
+| Timed-out authorized comment | Read back by content, author and timing; retry only after proving absence, otherwise return uncertain |
+
+Unrelated tests or CI never establish an issue-write result. These scenarios use
+synthetic issue identifiers and must not contain real comments or credentials.

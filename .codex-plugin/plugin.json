@@ -1,7 +1,7 @@
 {
   "name": "token-saver",
-  "version": "0.1.0-dev.6",
-  "description": "Run checks, compact output, locate repository content, collect status and submit authorized changes.",
+  "version": "0.1.0-dev.7",
+  "description": "Run checks, compact output, locate content, collect status and administer explicit issue fields.",
   "author": {
     "name": "Token Saver contributors"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Token Saver",
     "shortDescription": "Run checks and compact their output with recoverable evidence.",
-    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status, authorized Luna submission guidance and a versioned result contract. Other helpers remain planned.",
+    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status, authorized submission guidance, explicit issue administration and a versioned result contract. Other helpers remain planned.",
     "developerName": "Token Saver contributors",
     "category": "Productivity",
     "capabilities": [],
@@ -18,7 +18,8 @@
       "Compact an existing log and retain its diagnostics.",
       "Locate files or text in an existing repository.",
       "Collect read-only status for known GitHub PRs.",
-      "Submit an authorized change through Luna."
+      "Submit an authorized change through Luna.",
+      "Update one explicitly named issue field."
     ]
   },
   "license": "MIT",

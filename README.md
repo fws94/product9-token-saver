@@ -6,7 +6,7 @@ Small skills and deterministic helpers for more efficient coding-agent workflows
 
 Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first development integration; helpers should stay portable where practical.
 
-> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status and authorized Luna submission guidance are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with compact-output, run-checks, repo-lookup, batch-status and luna-submit skills is available.
+> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance and explicit issue administration are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit and issue-admin skills is available.
 
 ## Capabilities and roadmap
 
@@ -16,7 +16,7 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 | Run checks | Implemented: execute agreed commands with timeout and recoverable output | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
 | Repository lookup | Implemented: return bounded paths, line numbers and excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
 | Batch status | Implemented: collect read-only GitHub PR state and check summaries in one run | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
-| Routine operations | Submission delegation guidance is implemented; issue updates remain planned | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
+| Routine operations | Submission and explicit issue administration guidance is implemented | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
 | Usage reports | Measure recorded input, cached input and output across local reports | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
 
 ## Principles
@@ -48,7 +48,7 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md), then choose a task from the [road
 .github/       Issue forms, PR template, ownership and CI
 docs/          Roadmap, design direction and measurement rules
 scripts/       Repository checks, CLI, result contract, compaction, checks, lookup, status and submission guidance helpers
-skills/        compact-output, run-checks, repo-lookup, batch-status and luna-submit skills; other skills remain planned
+skills/        compact-output, run-checks, repo-lookup, batch-status, luna-submit and issue-admin skills; other skills remain planned
 tests/         Tests for repository tooling
 ```
 
