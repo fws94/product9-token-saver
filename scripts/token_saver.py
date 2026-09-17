@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Offline Token Saver CLI for result contracts and captured output views."""
 import argparse
+import math
 import sys
 
+from token_saver_lib.checks import run_checks
 from token_saver_lib.compact import compact_file
 from token_saver_lib.result import Result, SCHEMA_VERSION, STATUSES
 
@@ -17,6 +19,16 @@ def positive_integer(value: str) -> int:
     return number
 
 
+def positive_seconds(value: str) -> float:
+    try:
+        seconds = float(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("must be finite and positive") from error
+    if not math.isfinite(seconds) or seconds <= 0:
+        raise argparse.ArgumentTypeError("must be finite and positive")
+    return seconds
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Token Saver development CLI (Python 3.11+; no credentials required).")
@@ -29,7 +41,21 @@ def main(argv: list[str] | None = None) -> int:
     compact.add_argument("--max-lines", type=positive_integer, default=80,
                          help="positive line budget; diagnostics may exceed it (default: 80)")
     compact.add_argument("--raw", action="store_true", help="return the complete original text")
+    checks = commands.add_parser("checks", help="run an agreed existing check once")
+    checks.add_argument("--cwd", required=True, help="explicit working directory")
+    checks.add_argument("--timeout", type=positive_seconds, required=True, help="positive timeout in seconds")
+    checks.add_argument("--output-dir", help="artifact base directory; default: CWD/reports/checks")
+    checks.add_argument("--max-lines", type=positive_integer, default=80, help="line budget per output stream")
+    checks.add_argument("check_command", nargs=argparse.REMAINDER, help="-- COMMAND ARG...")
     args = parser.parse_args(argv)
+    if args.command == "checks":
+        command = args.check_command
+        if not command or command[0] != "--" or len(command) == 1:
+            checks.error("an explicit -- COMMAND ARG... is required")
+        result = run_checks(command[1:], cwd=args.cwd, timeout=args.timeout,
+                            output_dir=args.output_dir, max_lines=args.max_lines)
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
     if args.command == "compact":
         result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
         print(result.to_json())
