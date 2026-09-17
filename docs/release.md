@@ -12,7 +12,9 @@ The archive contains a `token-saver/` root with `.codex-plugin/plugin.json`,
 `scripts/`, `skills/`, `references/`, selected top-level `docs/` and `LICENSE`.
 Entries are sorted, timestamps are fixed and private `tests/`, `scratch/`,
 reports, credentials, sessions and build state are excluded. Inspect the file
-list before sharing it. The package is a development artifact; it is not a
+list before sharing it. Manifest names and versions must be single safe path
+components, so they cannot escape the archive root or the requested output
+directory. The package is a development artifact; it is not a
 published marketplace release or an account-savings claim.
 
 ## Install and update

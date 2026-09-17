@@ -13,17 +13,27 @@ PRIVATE_FILE_NAMES = {"credentials.json", "auth.json", "secrets.json"}
 PRIVATE_FILE_SUFFIXES = {".log", ".tmp"}
 
 
+def _safe_component(value: object, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Plugin manifest must contain a non-empty {field}")
+    invalid = set("/\\:\x00<>|\"?*")
+    if (value != value.strip() or value in {".", ".."}
+            or any(character in invalid or ord(character) < 32 or ord(character) == 127
+                   for character in value)):
+        raise ValueError(f"Plugin manifest {field} must be a safe path component")
+    return value
+
+
 def _manifest(root: Path) -> tuple[str, str]:
     path = root / ".codex-plugin" / "plugin.json"
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
         raise ValueError(f"Plugin manifest cannot be read ({type(error).__name__})") from error
-    if not isinstance(payload, dict) or not isinstance(payload.get("name"), str) or not payload["name"].strip():
-        raise ValueError("Plugin manifest must contain a non-empty name")
-    if not isinstance(payload.get("version"), str) or not payload["version"].strip():
-        raise ValueError("Plugin manifest must contain a non-empty version")
-    return payload["name"], payload["version"]
+    if not isinstance(payload, dict):
+        raise ValueError("Plugin manifest must be a JSON object")
+    return (_safe_component(payload.get("name"), "name"),
+            _safe_component(payload.get("version"), "version"))
 
 
 def _public_paths(root: Path, *, exclude: Path | None = None) -> list[Path]:

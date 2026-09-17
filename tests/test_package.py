@@ -1,4 +1,5 @@
 """Synthetic package artifact tests for the first release workflow."""
+import json
 from pathlib import Path
 import shutil
 import sys
@@ -79,3 +80,25 @@ class PackageTests(unittest.TestCase):
             names = archive.namelist()
             self.assertFalse(any(name.endswith("credentials.json") or name.endswith("events.log") for name in names))
             self.assertNotIn("token-saver/docs/pkg.zip", names)
+
+    def test_manifest_name_cannot_escape_archive_root(self):
+        from package_plugin import package_plugin
+        copy = Path(self.temp.name) / "plugin-with-unsafe-name"
+        shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns("scratch", "reports", "__pycache__"))
+        manifest = copy / ".codex-plugin" / "plugin.json"
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        payload["name"] = "../escape"
+        manifest.write_text(json.dumps(payload), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            package_plugin(copy, Path(self.temp.name) / "unsafe.zip")
+
+    def test_manifest_version_cannot_escape_output_directory(self):
+        from package_plugin import package_plugin
+        copy = Path(self.temp.name) / "plugin-with-unsafe-version"
+        shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns("scratch", "reports", "__pycache__"))
+        manifest = copy / ".codex-plugin" / "plugin.json"
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+        payload["version"] = "../escape"
+        manifest.write_text(json.dumps(payload), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            package_plugin(copy, Path(self.temp.name) / "artifacts" / "package.zip")
