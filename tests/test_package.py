@@ -25,7 +25,7 @@ class PackageTests(unittest.TestCase):
     def test_artifact_is_versioned_deterministic_and_contains_public_plugin_files(self):
         first = self.package(Path(self.temp.name) / "one.zip")
         second = self.package(Path(self.temp.name) / "two.zip")
-        self.assertEqual(first.version, "0.1.0-dev.9")
+        self.assertEqual(first.version, "0.1.0-dev.10")
         self.assertEqual(first.path.read_bytes(), second.path.read_bytes())
         with zipfile.ZipFile(first.path) as archive:
             names = archive.namelist()
@@ -56,5 +56,9 @@ class PackageTests(unittest.TestCase):
                              encoding="utf-8", timeout=10)
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(output.exists(), True)
-        self.assertIn("0.1.0-dev.9", run.stdout)
+        self.assertIn("0.1.0-dev.10", run.stdout)
 
+    def test_directory_output_uses_manifest_version_in_filename(self):
+        result = self.package(Path(self.temp.name) / "artifacts")
+        self.assertEqual(result.path.name, "token-saver-0.1.0-dev.10.zip")
+        self.assertTrue(result.path.is_file())

@@ -58,6 +58,8 @@ def package_plugin(plugin_root: str | Path, output: str | Path):
     name, version = _manifest(root)
     paths = _public_paths(root)
     destination = Path(output).expanduser().resolve()
+    if destination.is_dir() or destination.suffix.lower() != ".zip":
+        destination = destination / f"{name}-{version}.zip"
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in paths:

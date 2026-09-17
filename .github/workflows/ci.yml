@@ -1,0 +1,35 @@
+name: Cross-platform CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - name: Check repository documentation
+        run: python scripts/check_repository.py
+      - name: Run synthetic tests
+        run: python -m unittest discover -s tests -v
+      - name: Build deterministic development artifact
+        run: python scripts/token_saver.py package --plugin-root . --output dist
+      - name: Inspect artifact
+        run: python -c "import zipfile, pathlib; paths=list(pathlib.Path('dist').glob('*.zip')); assert len(paths)==1; assert zipfile.ZipFile(paths[0]).testzip() is None"

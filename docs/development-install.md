@@ -1,6 +1,6 @@
 # Development installation
 
-This development plugin includes compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills with standard-library helpers and submission references.
+This development plugin includes compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills with standard-library helpers, packaging and submission references.
 It adds no MCP servers, hooks or connectors; other runtime skills remain planned.
 The checks helper runs only the supplied command; that command has its own requirements.
 The offline helper CLI runs directly from the checkout with Python 3.11+ and no
@@ -102,7 +102,7 @@ remove the entire shared personal marketplace to uninstall this plugin.
 
 Windows with Python 3.11 was exercised for the CLI and tests. A relocated local
 marketplace was registered in an isolated Codex configuration: the CLI discovered
-version `0.1.0-dev.9`, installed and enabled it, then removed the installation and
+version `0.1.0-dev.10`, installed and enabled it, then removed the installation and
 marketplace. No credentials or network were needed for these local plugin
 operations. This was a temporary verification, not a persistent personal install.
 Linux/macOS and desktop UI discovery are not claimed verified by this check.

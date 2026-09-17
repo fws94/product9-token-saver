@@ -5,6 +5,7 @@ import math
 from pathlib import Path
 import sys
 
+from package_plugin import package_plugin
 from token_saver_lib.checks import run_checks
 from token_saver_lib.compact import compact_file
 from token_saver_lib.lookup import lookup
@@ -84,6 +85,9 @@ def main(argv: list[str] | None = None) -> int:
     merge_parser = commands.add_parser("usage-merge", help="merge local device usage reports")
     merge_parser.add_argument("--inputs", nargs="+", required=True, metavar="PATH")
     merge_parser.add_argument("--output", required=True, help="aggregate report JSON path")
+    package_parser = commands.add_parser("package", help="create a deterministic plugin archive")
+    package_parser.add_argument("--plugin-root", default=Path(__file__).resolve().parents[1])
+    package_parser.add_argument("--output", required=True, help="zip artifact path")
     args = parser.parse_args(argv)
     if args.command == "checks":
         command = args.check_command
@@ -97,6 +101,13 @@ def main(argv: list[str] | None = None) -> int:
         result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
         print(result.to_json())
         return 0 if result.status == "completed" else 1
+    if args.command == "package":
+        try:
+            result = package_plugin(args.plugin_root, args.output)
+        except ValueError as error:
+            package_parser.error(str(error))
+        print(f"Packaged {result.name} {result.version}: {result.path}")
+        return 0
     if args.command == "usage":
         try:
             source = args.input or (Path.home() / ".codex" / "sessions")
