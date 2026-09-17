@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Offline Token Saver CLI for result contracts and captured output views."""
+"""Offline Token Saver CLI for contracts, compaction, checks and lookup."""
 import argparse
 import math
 import sys
 
 from token_saver_lib.checks import run_checks
 from token_saver_lib.compact import compact_file
+from token_saver_lib.lookup import lookup
 from token_saver_lib.result import Result, SCHEMA_VERSION, STATUSES
 
 
@@ -16,6 +17,16 @@ def positive_integer(value: str) -> int:
         raise argparse.ArgumentTypeError("must be a positive integer") from error
     if number < 1:
         raise argparse.ArgumentTypeError("must be a positive integer")
+    return number
+
+
+def non_negative_integer(value: str) -> int:
+    try:
+        number = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("must be a non-negative integer") from error
+    if number < 0:
+        raise argparse.ArgumentTypeError("must be a non-negative integer")
     return number
 
 
@@ -47,6 +58,13 @@ def main(argv: list[str] | None = None) -> int:
     checks.add_argument("--output-dir", help="artifact base directory; default: CWD/reports/checks")
     checks.add_argument("--max-lines", type=positive_integer, default=80, help="line budget per output stream")
     checks.add_argument("check_command", nargs=argparse.REMAINDER, help="-- COMMAND ARG...")
+    lookup_parser = commands.add_parser("lookup", help="find bounded paths or text excerpts")
+    lookup_parser.add_argument("--root", required=True, help="repository root to search")
+    lookup_parser.add_argument("--query", required=True, help="literal or regex query")
+    lookup_parser.add_argument("--mode", choices=("files", "text"), required=True)
+    lookup_parser.add_argument("--pattern-mode", choices=("literal", "regex"), required=True)
+    lookup_parser.add_argument("--max-results", type=positive_integer, default=50)
+    lookup_parser.add_argument("--context-lines", type=non_negative_integer, default=0)
     args = parser.parse_args(argv)
     if args.command == "checks":
         command = args.check_command
@@ -60,6 +78,14 @@ def main(argv: list[str] | None = None) -> int:
         result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
         print(result.to_json())
         return 0 if result.status == "completed" else 1
+    if args.command == "lookup":
+        try:
+            result = lookup(args.root, args.query, mode=args.mode, pattern_mode=args.pattern_mode,
+                            max_results=args.max_results, context_lines=args.context_lines)
+        except ValueError as error:
+            lookup_parser.error(str(error))
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
     result = Result(
         operation="contract", status="completed", summary="Token Saver result contract",
         data={"schema_version": SCHEMA_VERSION, "statuses": list(STATUSES),
@@ -71,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
                   "data": "object of finite JSON values",
                   "identifiers": "object of non-empty string identifiers",
                   "evidence": "array of non-empty artifact references",
-                  "warnings": "array of non-empty strings",
+                  "warnings": "array of non-empty warnings",
                   "exit_code": "observed command exit code or null",
                   "duration_ms": "finite non-negative milliseconds or null"},
               "cli_exit_codes": {"0": "completed", "1": "non-completed outcome",

@@ -1,6 +1,6 @@
 # Development installation
 
-This development plugin includes compact-output and run-checks skills with standard-library helpers.
+This development plugin includes compact-output, run-checks and repo-lookup skills with standard-library helpers.
 It adds no MCP servers, hooks or connectors; other runtime skills remain planned.
 The checks helper runs only the supplied command; that command has its own requirements.
 The offline helper CLI runs directly from the checkout with Python 3.11+ and no
@@ -11,6 +11,7 @@ python scripts/token_saver.py --help
 python scripts/token_saver.py contract
 python scripts/token_saver.py compact --input tests/fixtures/compact/noisy-test.txt --format test --max-lines 6
 python scripts/token_saver.py checks --cwd . --timeout 60 -- python scripts/check_repository.py
+python scripts/token_saver.py lookup --root . --query token_saver --mode files --pattern-mode literal --max-results 20
 python -m unittest discover -s tests -v
 ```
 
@@ -48,10 +49,11 @@ Copy-Item -LiteralPath .codex-plugin/plugin.json -Destination (Join-Path $plugin
 New-Item -ItemType Directory -Force (Join-Path $pluginDestination 'scripts/token_saver_lib') | Out-Null
 Copy-Item -LiteralPath scripts/token_saver.py -Destination (Join-Path $pluginDestination 'scripts/token_saver.py')
 Copy-Item -Path scripts/token_saver_lib/*.py -Destination (Join-Path $pluginDestination 'scripts/token_saver_lib')
-New-Item -ItemType Directory -Force (Join-Path $pluginDestination 'skills/compact-output'), (Join-Path $pluginDestination 'skills/run-checks'), (Join-Path $pluginDestination 'docs') | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $pluginDestination 'skills/compact-output'), (Join-Path $pluginDestination 'skills/run-checks'), (Join-Path $pluginDestination 'skills/repo-lookup'), (Join-Path $pluginDestination 'docs') | Out-Null
 Copy-Item -LiteralPath skills/compact-output/SKILL.md -Destination (Join-Path $pluginDestination 'skills/compact-output/SKILL.md')
 Copy-Item -LiteralPath skills/run-checks/SKILL.md -Destination (Join-Path $pluginDestination 'skills/run-checks/SKILL.md')
-Copy-Item -LiteralPath docs/result-contract.md, docs/compact-output.md, docs/run-checks.md -Destination (Join-Path $pluginDestination 'docs')
+Copy-Item -LiteralPath skills/repo-lookup/SKILL.md -Destination (Join-Path $pluginDestination 'skills/repo-lookup/SKILL.md')
+Copy-Item -LiteralPath docs/result-contract.md, docs/compact-output.md, docs/run-checks.md, docs/repo-lookup.md -Destination (Join-Path $pluginDestination 'docs')
 $marketplaceName = python "$env:TOKEN_SAVER_PLUGIN_CREATOR/scripts/read_marketplace_name.py"
 # Continue only if marketplace-name validation succeeded.
 codex plugin add "token-saver@$marketplaceName"
@@ -92,7 +94,7 @@ remove the entire shared personal marketplace to uninstall this plugin.
 
 Windows with Python 3.11 was exercised for the CLI and tests. A relocated local
 marketplace was registered in an isolated Codex configuration: the CLI discovered
-version `0.1.0-dev.3`, installed and enabled it, then removed the installation and
+version `0.1.0-dev.4`, installed and enabled it, then removed the installation and
 marketplace. No credentials or network were needed for these local plugin
 operations. This was a temporary verification, not a persistent personal install.
 Linux/macOS and desktop UI discovery are not claimed verified by this check.
