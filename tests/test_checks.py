@@ -78,7 +78,9 @@ class ChecksTests(unittest.TestCase):
                             cwd=self.cwd, timeout=5).to_dict()
         raw = Path(result["data"]["artifacts"]["stdout"]).read_text(encoding="utf-8")
         actual_cwd, actual_args = json.loads(raw)
-        self.assertEqual(Path(actual_cwd), self.cwd)
+        # TemporaryDirectory may expose a short Windows path or a symlinked
+        # macOS path; compare the resolved physical directory instead.
+        self.assertEqual(Path(actual_cwd).resolve(), self.cwd.resolve())
         self.assertEqual(actual_args, args)
 
     def test_binary_stdout_keeps_raw_bytes_and_does_not_change_exit_success(self):
@@ -97,7 +99,7 @@ class ChecksTests(unittest.TestCase):
         self.assertNotEqual(first_path, second_path)
         self.assertIn("first", first_path.read_text())
         self.assertIn("second", second_path.read_text())
-        self.assertTrue(first_path.is_relative_to(self.cwd / "reports/checks"))
+        self.assertTrue(first_path.resolve().is_relative_to((self.cwd / "reports/checks").resolve()))
 
     def test_invalid_cwd_does_not_execute_command(self):
         self.assertIsNotNone(importlib.util.find_spec("token_saver_lib.checks"))
