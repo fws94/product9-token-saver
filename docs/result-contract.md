@@ -4,6 +4,7 @@
 an example result envelope. It performs no command execution, authentication,
 network access or filesystem writes. `--help` describes available commands.
 The [compact command](compact-output.md) uses the same envelope for captured-output views.
+The [checks command](run-checks.md) records an executed check's actual exit code and duration.
 
 Helpers import `Result` from `scripts/token_saver_lib/result.py`. Construct with
 keyword arguments and call `to_dict()` or `to_json()` to validate and serialize.
@@ -54,6 +55,7 @@ completed helper operation, `1` is reserved for other operational outcomes, and
 `2` means invalid invocation. Usage errors go to stderr without a JSON envelope.
 The current `contract` command only returns `0`; no command and unknown commands
 return `2`. The `compact` command returns `1` for unreadable or invalid input.
+The `checks` command returns `1` for a failed, timed-out, blocked or uncertain check.
 Future operations must document their own data fields.
 
 Consumers should reject unsupported schema versions and tolerate additional
