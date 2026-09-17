@@ -185,7 +185,8 @@ class ChecksTests(unittest.TestCase):
             executable = Path(shutil.which("sh"))
             name = "synthetic-check"
             arguments = ["-c", "printf synthetic-path-check"]
-        shutil.copy2(executable, project_tools / name)
+        shutil.copyfile(executable, project_tools / name)
+        (project_tools / name).chmod(executable.stat().st_mode)
         (wrapper_tools / name).write_text("not an executable")
         (wrapper_tools / name).chmod(0o755)
         original_cwd = Path.cwd()
