@@ -7,6 +7,7 @@ import sys
 from token_saver_lib.checks import run_checks
 from token_saver_lib.compact import compact_file
 from token_saver_lib.lookup import lookup
+from token_saver_lib.status import collect_github_status
 from token_saver_lib.result import Result, SCHEMA_VERSION, STATUSES
 
 
@@ -65,6 +66,11 @@ def main(argv: list[str] | None = None) -> int:
     lookup_parser.add_argument("--pattern-mode", choices=("literal", "regex"), required=True)
     lookup_parser.add_argument("--max-results", type=positive_integer, default=50)
     lookup_parser.add_argument("--context-lines", type=non_negative_integer, default=0)
+    status_parser = commands.add_parser("status", help="collect read-only pull-request status")
+    status_parser.add_argument("--provider", choices=("github",), required=True)
+    status_parser.add_argument("--repo", required=True, help="repository OWNER/REPO")
+    status_parser.add_argument("--prs", type=positive_integer, nargs="+", required=True, metavar="NUMBER")
+    status_parser.add_argument("--max-concurrency", type=positive_integer, default=4)
     args = parser.parse_args(argv)
     if args.command == "checks":
         command = args.check_command
@@ -76,6 +82,14 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if result.status == "completed" else 1
     if args.command == "compact":
         result = compact_file(args.input, format=args.format, max_lines=args.max_lines, raw=args.raw)
+        print(result.to_json())
+        return 0 if result.status == "completed" else 1
+    if args.command == "status":
+        try:
+            result = collect_github_status(args.repo, args.prs,
+                                           max_concurrency=args.max_concurrency)
+        except ValueError as error:
+            status_parser.error(str(error))
         print(result.to_json())
         return 0 if result.status == "completed" else 1
     if args.command == "lookup":

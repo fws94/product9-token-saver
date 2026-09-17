@@ -1,7 +1,7 @@
 {
   "name": "token-saver",
-  "version": "0.1.0-dev.4",
-  "description": "Run checks, compact output and locate repository content with bounded evidence.",
+  "version": "0.1.0-dev.5",
+  "description": "Run checks, compact output, locate repository content and collect read-only status.",
   "author": {
     "name": "Token Saver contributors"
   },
@@ -9,14 +9,15 @@
   "interface": {
     "displayName": "Token Saver",
     "shortDescription": "Run checks and compact their output with recoverable evidence.",
-    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup and a versioned result contract. Other helpers remain planned.",
+    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status and a versioned result contract. Other helpers remain planned.",
     "developerName": "Token Saver contributors",
     "category": "Productivity",
     "capabilities": [],
     "defaultPrompt": [
       "Run an agreed check and retain its complete output.",
       "Compact an existing log and retain its diagnostics.",
-      "Locate files or text in an existing repository."
+      "Locate files or text in an existing repository.",
+      "Collect read-only status for known GitHub PRs."
     ]
   },
   "license": "MIT",
