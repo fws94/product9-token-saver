@@ -33,7 +33,7 @@ def _period(start: str, end: str, utc_offset: float) -> tuple[datetime, datetime
         raise ValueError("start and end must use YYYY-MM-DD") from error
     if start_date > end_date:
         raise ValueError("start must be on or before end")
-    if type(utc_offset) not in (int, float) or not math.isfinite(utc_offset) or not -24 <= utc_offset <= 24:
+    if type(utc_offset) not in (int, float) or not math.isfinite(utc_offset) or not -24 < utc_offset < 24:
         raise ValueError("utc_offset must be a finite number between -24 and 24")
     zone = timezone(timedelta(hours=utc_offset))
     start_at = datetime.combine(start_date, time.min, zone)
@@ -50,7 +50,7 @@ def _parse_timestamp(value: Any) -> datetime | None:
         parsed = datetime.fromisoformat(text)
     except ValueError:
         return None
-    return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+    return None if parsed.tzinfo is None else parsed
 
 
 def _token_value(value: Any) -> int | None:
@@ -65,7 +65,8 @@ def _canonical(record: dict[str, Any], source: str, line_number: int) -> tuple[d
     if timestamp is None or not isinstance(response_id, str) or not response_id.strip():
         return None, f"Skipped record without a valid timestamp/response ID ({source}:{line_number})"
     usage = record.get("usage") if isinstance(record.get("usage"), dict) else record
-    values = {field: _token_value(usage.get(field, 0 if field in {"cached_input_tokens", "reasoning_output_tokens"} else None)) for field in TOKEN_FIELDS}
+    legacy_names = {"input_tokens": "input", "cached_input_tokens": "cached_input", "output_tokens": "output", "reasoning_output_tokens": "reasoning_output"}
+    values = {field: _token_value(usage.get(field, usage.get(legacy_names[field], 0 if field in {"cached_input_tokens", "reasoning_output_tokens"} else None))) for field in TOKEN_FIELDS}
     if any(value is None for value in values.values()):
         return None, f"Skipped record with incomplete token fields ({source}:{line_number})"
     if values["cached_input_tokens"] > values["input_tokens"]:
@@ -126,18 +127,33 @@ def collect_usage(*, source: str | Path, start: str, end: str, utc_offset: float
     formats: set[str] = set()
     for file_path in files:
         try:
-            lines = file_path.read_text(encoding="utf-8-sig").splitlines()
+            document = file_path.read_text(encoding="utf-8-sig")
         except (OSError, UnicodeError) as error:
             _add_warning(coverage_warnings, f"Unreadable usage log {file_path.name} ({type(error).__name__})")
             continue
-        for line_number, line in enumerate(lines, 1):
-            if not line.strip():
-                continue
+        line_records: list[tuple[int, Any]] = []
+        if file_path.suffix.lower() == ".json":
             try:
-                record = json.loads(line)
+                parsed_document = json.loads(document)
             except json.JSONDecodeError:
-                _add_warning(coverage_warnings, f"Ignored non-JSON line {file_path.name}:{line_number}")
-                continue
+                parsed_document = None
+            else:
+                if isinstance(parsed_document, dict):
+                    line_records = [(1, parsed_document)]
+                elif isinstance(parsed_document, list):
+                    line_records = [(index, item) for index, item in enumerate(parsed_document, 1)]
+                else:
+                    _add_warning(coverage_warnings, f"Ignored non-object JSON document {file_path.name}")
+                    continue
+        if not line_records:
+            for line_number, line in enumerate(document.splitlines(), 1):
+                if not line.strip():
+                    continue
+                try:
+                    line_records.append((line_number, json.loads(line)))
+                except json.JSONDecodeError:
+                    _add_warning(coverage_warnings, f"Ignored non-JSON line {file_path.name}:{line_number}")
+        for line_number, record in line_records:
             if not isinstance(record, dict):
                 _add_warning(coverage_warnings, f"Ignored non-object record {file_path.name}:{line_number}")
                 continue
@@ -163,24 +179,26 @@ def collect_usage(*, source: str | Path, start: str, end: str, utc_offset: float
         seen.add(record["response_id"])
         unique.append(record)
     selected = [record for record in unique if start_at <= record["timestamp"] < end_at]
+    if not selected:
+        _add_warning(coverage_warnings, "No records in the requested period; coverage is unknown")
     normal = [record for record in selected if not record["automatic_approval"]]
     approvals = [record for record in selected if record["automatic_approval"]]
 
     def totals(records: list[dict[str, Any]]) -> dict[str, int]:
         return {"responses": len(records), **{field: sum(record[field] for record in records) for field in TOKEN_FIELDS}}
 
-    normal_totals = totals(normal) if all_records else _empty_totals(None)
+    normal_totals = totals(normal) if selected else _empty_totals(None)
     approval_totals = ({"records": len(approvals), **{field: sum(record[field] for record in approvals) for field in TOKEN_FIELDS}}
-                       if all_records else _empty_totals(None))
+                       if selected else {"records": None, **{field: None for field in TOKEN_FIELDS}})
     data: dict[str, Any] = {"device": device, "period": period,
-                            "coverage": {"known": bool(all_records), "files": len(files), "records": len(all_records), "warnings": coverage_warnings},
+                            "coverage": {"known": bool(selected), "partial": bool(coverage_warnings), "files": len(files), "records": len(all_records), "warnings": coverage_warnings},
                             "totals": normal_totals, "automatic_approval": approval_totals,
                             "deduplication": {"records_seen": len(all_records), "duplicates_removed": duplicates_removed, "cross_device_provable": False}}
     if hash_receipts:
         data["response_receipts"] = [hashlib.sha256(record["response_id"].encode("utf-8")).hexdigest() for record in selected]
         data["deduplication"]["response_receipts_hashed"] = True
-    result_status = "completed" if all_records else "blocked"
-    result_summary = "Usage report collected" if all_records else "No parseable usage records; coverage is unknown"
+    result_status = "completed" if selected else "blocked"
+    result_summary = "Usage report collected" if selected else "No records in the requested period; coverage is unknown"
     result = Result(operation="usage", status=result_status, summary=result_summary, data=data,
                     evidence=[str(output_path)], warnings=coverage_warnings)
     _, write_error = _write_report(output_path, result.to_dict())
@@ -189,6 +207,44 @@ def collect_usage(*, source: str | Path, start: str, end: str, utc_offset: float
         result.summary = write_error
         result.warnings.append(write_error)
     return result
+
+
+def _validate_report_period(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("Usage report period must be an object")
+    start_text = value.get("start")
+    end_text = value.get("end_exclusive")
+    if not isinstance(start_text, str) or not isinstance(end_text, str):
+        raise ValueError("Usage report period requires start and end_exclusive")
+    try:
+        start = datetime.fromisoformat(start_text.replace("Z", "+00:00"))
+        end = datetime.fromisoformat(end_text.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError("Usage report period timestamps are invalid") from error
+    if start.tzinfo is None or end.tzinfo is None or start >= end:
+        raise ValueError("Usage report period must be timezone-aware and increasing")
+    return value
+
+
+def _validate_totals(value: Any, *, approval: bool = False) -> dict[str, int]:
+    fields = ("records", *TOKEN_FIELDS) if approval else ("responses", *TOKEN_FIELDS)
+    if not isinstance(value, dict):
+        raise ValueError("Usage report totals must be an object")
+    result: dict[str, int] = {}
+    for field in fields:
+        amount = value.get(field)
+        if type(amount) is not int or amount < 0:
+            raise ValueError(f"Usage report total {field} must be a non-negative integer")
+        result[field] = amount
+    return result
+
+
+def _validate_receipts(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if not isinstance(value, list) or any(not isinstance(item, str) or re.fullmatch(r"[0-9a-f]{64}", item) is None for item in value):
+        raise ValueError("response_receipts must contain lowercase SHA-256 hashes")
+    return value
 
 
 def merge_usage(inputs: list[str | Path], output: str | Path) -> Result:
@@ -203,39 +259,47 @@ def merge_usage(inputs: list[str | Path], output: str | Path) -> Result:
             raise ValueError(f"Unable to read usage report {path} ({type(error).__name__})") from error
         if not isinstance(payload, dict) or payload.get("schema_version") != SCHEMA_VERSION or not isinstance(payload.get("data"), dict):
             raise ValueError(f"Usage report {path} has unsupported schema")
+        data = payload["data"]
+        _validate_report_period(data.get("period"))
+        coverage = data.get("coverage")
+        if not isinstance(coverage, dict) or type(coverage.get("known")) is not bool:
+            raise ValueError(f"Usage report {path} has invalid coverage")
+        if not isinstance(coverage.get("warnings", []), list) or any(not isinstance(item, str) for item in coverage.get("warnings", [])):
+            raise ValueError(f"Usage report {path} has invalid coverage warnings")
+        _validate_totals(data.get("totals"))
+        _validate_totals(data.get("automatic_approval"), approval=True)
+        _validate_receipts(data.get("response_receipts"))
+        if not isinstance(payload.get("warnings", []), list) or any(not isinstance(item, str) for item in payload.get("warnings", [])):
+            raise ValueError(f"Usage report {path} has invalid warnings")
+        if coverage.get("known") is not True:
+            raise ValueError(f"Usage report {path} has unknown coverage and cannot be merged as zero")
         reports.append(payload)
-    periods = [report["data"].get("period") for report in reports]
+    periods = [report["data"]["period"] for report in reports]
     if any(period != periods[0] for period in periods[1:]):
         raise ValueError("Usage reports must use the same period")
     totals = _empty_totals(0)
     approvals = {"records": 0, **{field: 0 for field in TOKEN_FIELDS}}
     warnings: list[str] = ["Aggregate reports cannot prove cross-device response deduplication"]
-    known = True
     receipts: set[str] = set()
     duplicate_receipts = 0
     for report in reports:
         data = report["data"]
-        coverage = data.get("coverage") if isinstance(data.get("coverage"), dict) else {}
-        known = known and coverage.get("known") is True
-        warnings.extend(str(item) for item in report.get("warnings", []) if isinstance(item, str))
-        warnings.extend(str(item) for item in coverage.get("warnings", []) if isinstance(item, str))
-        report_totals = data.get("totals")
-        report_approvals = data.get("automatic_approval")
-        if not isinstance(report_totals, dict) or any(type(report_totals.get(field)) is not int for field in ("responses", *TOKEN_FIELDS)):
-            raise ValueError("Usage report has unknown totals and cannot be merged")
-        if not isinstance(report_approvals, dict) or any(type(report_approvals.get(field)) is not int for field in ("records", *TOKEN_FIELDS)):
-            raise ValueError("Usage report has invalid approval totals")
+        coverage = data["coverage"]
+        warnings.extend(report.get("warnings", []))
+        warnings.extend(coverage.get("warnings", []))
+        report_totals = _validate_totals(data["totals"])
+        report_approvals = _validate_totals(data["automatic_approval"], approval=True)
         for field in totals:
             totals[field] += report_totals[field]
         for field in approvals:
             approvals[field] += report_approvals[field]
-        for receipt in data.get("response_receipts", []):
+        for receipt in _validate_receipts(data.get("response_receipts")):
             if receipt in receipts:
                 duplicate_receipts += 1
             receipts.add(receipt)
     data = {"report_type": "aggregate", "period": periods[0], "devices": len(reports),
             "totals": totals, "automatic_approval": approvals,
-            "coverage": {"known": known, "warnings": warnings[1:]},
+            "coverage": {"known": True, "warnings": warnings[1:]},
             "deduplication": {"cross_device_provable": False, "duplicate_receipts_detected": duplicate_receipts}}
     if receipts:
         data["response_receipts"] = sorted(receipts)

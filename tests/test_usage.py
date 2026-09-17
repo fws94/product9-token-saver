@@ -143,3 +143,51 @@ class UsageTests(unittest.TestCase):
         self.assertEqual(payload["operation"], "usage-merge")
         self.assertFalse(payload["data"]["deduplication"]["cross_device_provable"])
         self.assertTrue(output.is_file())
+
+    def test_legacy_records_and_pretty_json_are_counted_and_mixed_warning_is_kept(self):
+        (self.logs / "pretty.json").write_text(json.dumps({
+            "format": "responses-v1", "timestamp": "2026-09-10T00:00:00Z", "response_id": "modern",
+            "usage": {"input_tokens": 2, "output_tokens": 3}
+        }, indent=2), encoding="utf-8")
+        write_jsonl(self.logs / "legacy.jsonl", [{
+            "format": "legacy-v0", "time": "2026-09-10T01:00:00Z", "id": "legacy",
+            "input": 5, "cached_input": 1, "output": 4
+        }])
+        result = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        self.assertEqual(result["data"]["totals"]["responses"], 2)
+        self.assertEqual(result["data"]["totals"]["input_tokens"], 7)
+        self.assertTrue(any("mixed" in warning.lower() for warning in result["warnings"]))
+
+    def test_period_without_selected_records_is_unknown_not_known_zero(self):
+        write_jsonl(self.logs / "events.jsonl", [{
+            "format": "responses-v1", "timestamp": "2026-09-09T23:59:59Z", "response_id": "outside",
+            "usage": {"input_tokens": 4, "output_tokens": 4}
+        }])
+        result = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        self.assertEqual(result["status"], "blocked")
+        self.assertFalse(result["data"]["coverage"]["known"])
+        self.assertIsNone(result["data"]["totals"]["input_tokens"])
+
+    def test_merge_rejects_raw_receipts_malformed_period_and_negative_totals(self):
+        from token_saver_lib.usage import merge_usage
+        report = self.root / "report.json"
+        report.write_text(json.dumps({
+            "schema_version": 1, "operation": "usage", "data": {
+                "period": {"start": "bad"},
+                "totals": {"responses": -1, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
+                "automatic_approval": {"records": 0, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
+                "coverage": {"known": True}, "response_receipts": ["raw-response-id"]
+            }
+        }), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            merge_usage([report], self.root / "out.json")
+
+    def test_naive_timestamp_is_not_silently_assigned_a_timezone(self):
+        write_jsonl(self.logs / "naive.jsonl", [{
+            "format": "responses-v1", "timestamp": "2026-09-10T00:00:00", "response_id": "naive",
+            "usage": {"input_tokens": 1, "output_tokens": 1}
+        }])
+        result = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=8)
+        self.assertEqual(result["status"], "blocked")
+        self.assertFalse(result["data"]["coverage"]["known"])
+        self.assertTrue(any("timestamp" in warning.lower() for warning in result["warnings"]))

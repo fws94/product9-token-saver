@@ -6,7 +6,7 @@ local logs. Supported records are JSON objects with a timestamp, response ID
 `input_tokens`, optional `cached_input_tokens`, `output_tokens` and optional
 `reasoning_output_tokens`; missing subset fields are zero. Legacy records may
 put these fields at the top level and use `time`, `id`, `input`, `cached_input`
-and `output`. Unknown or malformed lines are skipped with bounded warnings; when many lines are skipped, the report states that additional warnings were omitted.
+and `output`. Unknown or malformed lines are skipped with bounded warnings; when many lines are skipped, the report states that additional warnings were omitted. Timestamps must include a timezone offset or `Z`; naive timestamps are skipped rather than silently assigned a timezone.
 
 ```powershell
 python scripts/token_saver.py usage --start 2026-09-01 --end 2026-09-07 --utc-offset 8 --device laptop --input .codex/sessions --output usage-reports/laptop.json
@@ -16,7 +16,7 @@ python scripts/token_saver.py usage-merge --inputs usage-reports/laptop.json usa
 `--start` and `--end` are local calendar dates. `--end` is inclusive; the
 report writes `period.start` at local midnight and `period.end_exclusive` at
 midnight on the following date, both with the requested fixed UTC offset.
-`--utc-offset` is a finite number from -24 through 24. `--device` and
+`--utc-offset` is a finite number strictly between -24 and 24 hours. `--device` and
 `--output` are required. `--input` defaults to `~/.codex/sessions`, and
 `--hash-receipts` is opt-in.
 

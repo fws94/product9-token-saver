@@ -15,7 +15,7 @@ python scripts/token_saver.py usage --start 2026-09-01 --end 2026-09-07 --utc-of
 python scripts/token_saver.py usage-merge --inputs laptop.json desktop.json --output all-devices.json
 ```
 
-The end date is inclusive in the request and is returned as an explicit
+Timestamps must be timezone-aware; malformed or naive records remain unknown. The end date is inclusive in the request and is returned as an explicit
 half-open interval `[start, end_exclusive)`. Records are deduplicated by
 response ID across every source date before that interval is filtered. Cached
 input is included within input tokens; reasoning output is included within
@@ -29,7 +29,7 @@ warning. `--hash-receipts` stores SHA-256 response receipts without IDs or
 prompts, but receipts cannot prove a physical device or repair cross-device
 duplicates.
 
-`usage-merge` validates schema and identical periods, sums known device totals,
+`usage-merge` validates schema, timezone-aware increasing periods, non-negative totals and hashed receipts, then sums known device totals,
 retains every warning and sets `cross_device_provable: false`. Aggregate totals
 are not evidence of subscription, credit or account savings. Report only
 bytes/tokens recorded in the supplied artifacts; unavailable actual usage must
