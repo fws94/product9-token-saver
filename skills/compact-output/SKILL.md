@@ -41,3 +41,14 @@ Completion means a structured view (or explicit failure) was returned with its
 original evidence path, not that any tests were fixed or an issue was completed.
 See the [helper contract](../../docs/result-contract.md) and
 [compaction details](../../docs/compact-output.md) for field meanings and limits.
+
+## Optional RTK
+
+RTK is an optional external tool, not a prerequisite. Detect it read-only with
+`Get-Command rtk` or `shutil.which("rtk")`; never install it, run `rtk init`,
+modify hooks or change PATH automatically. Keep the built-in compactor as the
+fallback when RTK is absent or its output is uncertain. If a user explicitly
+selects an already installed RTK, record `rtk --version`, retain the original
+raw artifact and compare actual task diagnostics and outcomes. Report measured
+bytes/lines and task metrics only; do not promise token or subscription savings.
+See [RTK integration notes](../../docs/rtk-integration.md).

@@ -9,6 +9,8 @@ import zipfile
 PUBLIC_ROOTS = (".codex-plugin", "docs", "references", "scripts", "skills")
 PUBLIC_FILES = ("LICENSE",)
 EXCLUDED_PARTS = {".git", ".codex", "scratch", "reports", "usage-reports", "receipts", "tests", "__pycache__"}
+PRIVATE_FILE_NAMES = {"credentials.json", "auth.json", "secrets.json"}
+PRIVATE_FILE_SUFFIXES = {".log", ".tmp"}
 
 
 def _manifest(root: Path) -> tuple[str, str]:
@@ -24,7 +26,7 @@ def _manifest(root: Path) -> tuple[str, str]:
     return payload["name"], payload["version"]
 
 
-def _public_paths(root: Path) -> list[Path]:
+def _public_paths(root: Path, *, exclude: Path | None = None) -> list[Path]:
     paths: list[Path] = []
     for name in PUBLIC_FILES:
         candidate = root / name
@@ -43,6 +45,10 @@ def _public_paths(root: Path) -> list[Path]:
             if candidate.is_symlink():
                 raise ValueError(f"Plugin package cannot contain symlink {relative.as_posix()}")
             if candidate.is_file():
+                if exclude is not None and candidate.resolve() == exclude.resolve():
+                    continue
+                if candidate.name.lower() in PRIVATE_FILE_NAMES or candidate.suffix.lower() in PRIVATE_FILE_SUFFIXES:
+                    continue
                 paths.append(candidate)
     manifest = root / ".codex-plugin" / "plugin.json"
     if manifest not in paths:
@@ -56,10 +62,10 @@ def package_plugin(plugin_root: str | Path, output: str | Path):
     if not root.is_dir():
         raise ValueError("plugin_root must be an existing directory")
     name, version = _manifest(root)
-    paths = _public_paths(root)
     destination = Path(output).expanduser().resolve()
     if destination.is_dir() or destination.suffix.lower() != ".zip":
         destination = destination / f"{name}-{version}.zip"
+    paths = _public_paths(root, exclude=destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in paths:

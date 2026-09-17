@@ -1,6 +1,6 @@
 # Agent contribution guidance
 
-Read README.md and CONTRIBUTING.md before changing this project. The compact-output, checks, lookup, status, usage, packaging, submission and issue-admin guidance helpers and development plugin are implemented; other runtime helpers remain planned. Do not describe an issue or a design document as a working feature.
+Read README.md and CONTRIBUTING.md before changing this project. The compact-output, checks, lookup, status, usage, packaging, optional RTK guidance, submission and issue-admin guidance helpers and development plugin are implemented; other runtime helpers remain planned. Do not describe an issue or a design document as a working feature.
 
 - Work within the requested issue and preserve unrelated changes.
 - Keep skills narrow, helpers deterministic where possible and output evidence recoverable.

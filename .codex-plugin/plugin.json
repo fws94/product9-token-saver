@@ -1,7 +1,7 @@
 {
   "name": "token-saver",
-  "version": "0.1.0-dev.10",
-  "description": "Run checks, compact output, locate content, collect usage, package releases and administer explicit issue fields.",
+  "version": "0.1.0-dev.11",
+  "description": "Run checks, compact output, locate content, collect usage, package releases and document optional RTK integration.",
   "author": {
     "name": "Token Saver contributors"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Token Saver",
     "shortDescription": "Run checks and compact their output with recoverable evidence.",
-    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status, local usage reports, deterministic package CI, authorized submission guidance, explicit issue administration and a versioned result contract. Other helpers remain planned.",
+    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status, local usage reports, deterministic package CI, authorized submission guidance, explicit issue administration, optional RTK measurement guidance and a versioned result contract. Other helpers remain planned.",
     "developerName": "Token Saver contributors",
     "category": "Productivity",
     "capabilities": [],
@@ -21,7 +21,8 @@
       "Submit an authorized change through Luna.",
       "Update one explicitly named issue field.",
       "Measure a local device usage report.",
-      "Build a deterministic development package."
+      "Build a deterministic development package.",
+      "Compare optional RTK output with retained evidence."
     ]
   },
   "license": "MIT",

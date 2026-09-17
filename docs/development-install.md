@@ -51,6 +51,7 @@ Copy-Item -LiteralPath .codex-plugin/plugin.json -Destination (Join-Path $plugin
 # Keep the repository's script layout in the installed copy.
 New-Item -ItemType Directory -Force (Join-Path $pluginDestination 'scripts/token_saver_lib') | Out-Null
 Copy-Item -LiteralPath scripts/token_saver.py -Destination (Join-Path $pluginDestination 'scripts/token_saver.py')
+Copy-Item -LiteralPath scripts/package_plugin.py -Destination (Join-Path $pluginDestination 'scripts/package_plugin.py')
 Copy-Item -Path scripts/token_saver_lib/*.py -Destination (Join-Path $pluginDestination 'scripts/token_saver_lib')
 New-Item -ItemType Directory -Force (Join-Path $pluginDestination 'skills/compact-output'), (Join-Path $pluginDestination 'skills/run-checks'), (Join-Path $pluginDestination 'skills/repo-lookup'), (Join-Path $pluginDestination 'skills/batch-status'), (Join-Path $pluginDestination 'skills/luna-submit'), (Join-Path $pluginDestination 'skills/issue-admin'), (Join-Path $pluginDestination 'skills/usage-report'), (Join-Path $pluginDestination 'references'), (Join-Path $pluginDestination 'docs') | Out-Null
 Copy-Item -LiteralPath skills/compact-output/SKILL.md -Destination (Join-Path $pluginDestination 'skills/compact-output/SKILL.md')
@@ -61,7 +62,7 @@ Copy-Item -LiteralPath skills/luna-submit/SKILL.md -Destination (Join-Path $plug
 Copy-Item -LiteralPath skills/issue-admin/SKILL.md -Destination (Join-Path $pluginDestination 'skills/issue-admin/SKILL.md')
 Copy-Item -LiteralPath skills/usage-report/SKILL.md -Destination (Join-Path $pluginDestination 'skills/usage-report/SKILL.md')
 Copy-Item -LiteralPath references/worker-handoff.md -Destination (Join-Path $pluginDestination 'references/worker-handoff.md')
-Copy-Item -LiteralPath docs/result-contract.md, docs/compact-output.md, docs/run-checks.md, docs/repo-lookup.md, docs/batch-status.md, docs/usage-report.md -Destination (Join-Path $pluginDestination 'docs')
+Copy-Item -LiteralPath docs/result-contract.md, docs/compact-output.md, docs/run-checks.md, docs/repo-lookup.md, docs/batch-status.md, docs/usage-report.md, docs/release.md, docs/rtk-integration.md -Destination (Join-Path $pluginDestination 'docs')
 $marketplaceName = python "$env:TOKEN_SAVER_PLUGIN_CREATOR/scripts/read_marketplace_name.py"
 # Continue only if marketplace-name validation succeeded.
 codex plugin add "token-saver@$marketplaceName"
@@ -102,7 +103,7 @@ remove the entire shared personal marketplace to uninstall this plugin.
 
 Windows with Python 3.11 was exercised for the CLI and tests. A relocated local
 marketplace was registered in an isolated Codex configuration: the CLI discovered
-version `0.1.0-dev.10`, installed and enabled it, then removed the installation and
+version `0.1.0-dev.11`, installed and enabled it, then removed the installation and
 marketplace. No credentials or network were needed for these local plugin
 operations. This was a temporary verification, not a persistent personal install.
 Linux/macOS and desktop UI discovery are not claimed verified by this check.

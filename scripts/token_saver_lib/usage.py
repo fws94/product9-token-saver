@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import math
+import re
 from typing import Any
 
 from .result import Result

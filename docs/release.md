@@ -5,7 +5,7 @@ third-party runtime packages. The manifest version is used in the archive
 metadata and should be bumped only for a reviewed release change.
 
 ```powershell
-python scripts/token_saver.py package --plugin-root . --output dist/token-saver-0.1.0-dev.10.zip
+python scripts/token_saver.py package --plugin-root . --output dist/token-saver-0.1.0-dev.11.zip
 ```
 
 The archive contains a `token-saver/` root with `.codex-plugin/plugin.json`,

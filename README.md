@@ -6,7 +6,7 @@ Small skills and deterministic helpers for more efficient coding-agent workflows
 
 Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first development integration; helpers should stay portable where practical.
 
-> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance, explicit issue administration and local usage reports and deterministic release packaging are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills is available.
+> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance, explicit issue administration and local usage reports, deterministic release packaging and optional RTK measurement guidance are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills is available.
 
 ## Capabilities and roadmap
 
@@ -17,8 +17,9 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 | Repository lookup | Implemented: return bounded paths, line numbers and excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
 | Batch status | Implemented: collect read-only GitHub PR state and check summaries in one run | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
 | Routine operations | Submission and explicit issue administration guidance is implemented | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
-| Usage reports | Implemented: collect and merge recorded local device usage with coverage warnings |
+| Usage reports | Implemented: collect and merge recorded local device usage with coverage warnings | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
 | Release package | Implemented: build a deterministic archive and run cross-platform CI; desktop discovery remains manual | [#9](https://github.com/fws94/product9-token-saver/issues/9) |
+| Optional RTK | Detection and measurement guidance only; no adapter is enabled without platform evidence | [#10](https://github.com/fws94/product9-token-saver/issues/10) |
 
 ## Principles
 

@@ -191,3 +191,21 @@ class UsageTests(unittest.TestCase):
         self.assertEqual(result["status"], "blocked")
         self.assertFalse(result["data"]["coverage"]["known"])
         self.assertTrue(any("timestamp" in warning.lower() for warning in result["warnings"]))
+
+    def test_merge_accepts_valid_hashed_receipts_and_counts_duplicates(self):
+        from token_saver_lib.usage import merge_usage
+        common = "a" * 64
+        reports = []
+        for index in range(2):
+            report = self.root / f"receipt-{index}.json"
+            report.write_text(json.dumps({
+                "schema_version": 1, "operation": "usage", "data": {
+                    "period": {"start": "2026-09-10T00:00:00+00:00", "end_exclusive": "2026-09-11T00:00:00+00:00"},
+                    "totals": {"responses": 1, "input_tokens": 1, "cached_input_tokens": 0, "output_tokens": 1, "reasoning_output_tokens": 0},
+                    "automatic_approval": {"records": 0, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
+                    "coverage": {"known": True, "warnings": []}, "response_receipts": [common]
+                }, "warnings": []}), encoding="utf-8")
+            reports.append(report)
+        result = merge_usage(reports, self.root / "reports/receipts.json").to_dict()
+        self.assertEqual(result["data"]["deduplication"]["duplicate_receipts_detected"], 1)
+        self.assertEqual(result["data"]["response_receipts"], [common])

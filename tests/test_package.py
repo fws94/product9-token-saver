@@ -1,5 +1,6 @@
 """Synthetic package artifact tests for the first release workflow."""
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
@@ -25,7 +26,7 @@ class PackageTests(unittest.TestCase):
     def test_artifact_is_versioned_deterministic_and_contains_public_plugin_files(self):
         first = self.package(Path(self.temp.name) / "one.zip")
         second = self.package(Path(self.temp.name) / "two.zip")
-        self.assertEqual(first.version, "0.1.0-dev.10")
+        self.assertEqual(first.version, "0.1.0-dev.11")
         self.assertEqual(first.path.read_bytes(), second.path.read_bytes())
         with zipfile.ZipFile(first.path) as archive:
             names = archive.namelist()
@@ -56,9 +57,25 @@ class PackageTests(unittest.TestCase):
                              encoding="utf-8", timeout=10)
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(output.exists(), True)
-        self.assertIn("0.1.0-dev.10", run.stdout)
+        self.assertIn("0.1.0-dev.11", run.stdout)
 
     def test_directory_output_uses_manifest_version_in_filename(self):
         result = self.package(Path(self.temp.name) / "artifacts")
-        self.assertEqual(result.path.name, "token-saver-0.1.0-dev.10.zip")
+        self.assertEqual(result.path.name, "token-saver-0.1.0-dev.11.zip")
         self.assertTrue(result.path.is_file())
+
+    def test_sensitive_files_are_excluded_and_public_root_output_is_reproducible(self):
+        from package_plugin import package_plugin
+        copy = Path(self.temp.name) / "plugin-copy"
+        shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns("scratch", "reports", "__pycache__"))
+        (copy / "scripts/credentials.json").write_text("secret", encoding="utf-8")
+        (copy / "scripts/events.log").write_text("private log", encoding="utf-8")
+        output = copy / "docs" / "pkg.zip"
+        first = package_plugin(copy, output)
+        first_bytes = first.path.read_bytes()
+        second = package_plugin(copy, output)
+        self.assertEqual(first_bytes, second.path.read_bytes())
+        with zipfile.ZipFile(second.path) as archive:
+            names = archive.namelist()
+            self.assertFalse(any(name.endswith("credentials.json") or name.endswith("events.log") for name in names))
+            self.assertNotIn("token-saver/docs/pkg.zip", names)
