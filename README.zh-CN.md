@@ -31,7 +31,7 @@
 
 ## 现在可以怎样参与
 
-准备 Git 与 Python 3.11 或更新版本即可运行仓库检查，不需要 API Key。
+准备 Git、Python 3.11 或更新版本以及 ripgrep 即可运行仓库检查和检索工具，不需要 API Key。
 
 ```bash
 git clone https://github.com/fws94/product9-token-saver.git

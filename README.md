@@ -31,7 +31,8 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 
 ## Explore and contribute today
 
-Git and Python 3.11 or newer are enough to run the repository checks. No API key is needed.
+Git, Python 3.11 or newer and ripgrep are enough to run the repository checks and
+lookup helper. No API key is needed.
 
 ```bash
 git clone https://github.com/fws94/product9-token-saver.git

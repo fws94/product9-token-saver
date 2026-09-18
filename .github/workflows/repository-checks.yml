@@ -25,6 +25,19 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
+      - name: Install ripgrep (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ripgrep
+      - name: Install ripgrep (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ripgrep
+      - name: Install ripgrep (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ripgrep --yes --no-progress
+      - name: Verify ripgrep
+        run: rg --version
       - name: Check repository documentation
         run: python scripts/check_repository.py
       - name: Test repository tooling
