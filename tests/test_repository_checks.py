@@ -66,6 +66,14 @@ class MarkdownLinkTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("outside repository", errors[0])
 
+    def test_security_contact_uses_current_repository(self):
+        config = Path(__file__).resolve().parents[1] / ".github" / "ISSUE_TEMPLATE" / "config.yml"
+        text = config.read_text(encoding="utf-8")
+        self.assertIn(
+            "https://github.com/fws94/product9-token-saver/security/advisories/new",
+            text,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

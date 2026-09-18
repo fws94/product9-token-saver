@@ -1,0 +1,30 @@
+{
+  "name": "token-saver",
+  "version": "0.1.0-dev.11",
+  "description": "Run checks, compact output, locate content, collect usage, package releases and document optional RTK integration.",
+  "author": {
+    "name": "Token Saver contributors"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Token Saver",
+    "shortDescription": "Run checks and compact their output with recoverable evidence.",
+    "longDescription": "Development plugin with an existing-check runner, captured-output compaction, precise repository lookup, batched GitHub status, local usage reports, deterministic package CI, authorized submission guidance, explicit issue administration, optional RTK measurement guidance and a versioned result contract. Other helpers remain planned.",
+    "developerName": "Token Saver contributors",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Run an agreed check and retain its complete output.",
+      "Compact an existing log and retain its diagnostics.",
+      "Locate files or text in an existing repository.",
+      "Collect read-only status for known GitHub PRs.",
+      "Submit an authorized change through Luna.",
+      "Update one explicitly named issue field.",
+      "Measure a local device usage report.",
+      "Build a deterministic development package.",
+      "Compare optional RTK output with retained evidence."
+    ]
+  },
+  "license": "MIT",
+  "repository": "https://github.com/fws94/product9-token-saver"
+}
