@@ -1,35 +1,38 @@
 # Token Saver
 
-[简体中文](README.zh-CN.md) · [Roadmap](docs/ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [MIT License](LICENSE)
+[简体中文](README.zh-CN.md) · [Roadmap](docs/ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Release package](docs/release.md) · [MIT License](LICENSE)
 
 Small skills and deterministic helpers for more efficient coding-agent workflows.
 
-Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first planned integration; helpers should stay portable where practical.
+Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first development integration; helpers should stay portable where practical.
 
-> **Status: early development.** This repository currently contains project documentation, collaboration templates and repository checks. The runtime helpers and installable plugin are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no installable release yet.
+> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance, explicit issue administration and local usage reports, deterministic release packaging and optional RTK measurement guidance are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). The [v0.1.0-dev.12 prerelease](https://github.com/fws94/product9-token-saver/releases/tag/v0.1.0-dev.12) provides a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills; there is no stable release yet.
 
-## Planned capabilities
+## Capabilities and roadmap
 
 | Capability | Intended behavior | Tracking |
 | --- | --- | --- |
-| Compact output | Reduce repetitive command output and retain diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
-| Run checks | Execute existing test, build and lint commands with concise results | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
-| Repository lookup | Return relevant paths, line numbers and bounded excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
-| Batch status | Collect PR, CI and issue status with fewer repeated calls | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
-| Routine operations | Delegate explicitly authorized submissions and issue updates | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
-| Usage reports | Measure recorded input, cached input and output across local reports | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
+| Compact output | Implemented: compact captured logs with counts and diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| Run checks | Implemented: execute agreed commands with timeout and recoverable output | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
+| Repository lookup | Implemented: return bounded paths, line numbers and excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
+| Batch status | Implemented: collect read-only GitHub PR state and check summaries in one run | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
+| Routine operations | Submission and explicit issue administration guidance is implemented | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
+| Usage reports | Implemented: collect and merge recorded local device usage with coverage warnings | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
+| Release package | Implemented: build a deterministic archive and run cross-platform CI; desktop discovery remains manual | [#9](https://github.com/fws94/product9-token-saver/issues/9) |
+| Optional RTK | Detection and measurement guidance only; no adapter is enabled without platform evidence | [#10](https://github.com/fws94/product9-token-saver/issues/10) |
 
 ## Principles
 
 - Use deterministic tools for well-defined work and small workers for bounded tasks that benefit from language understanding.
-- Preserve the parent agent's model and reasoning settings. Model routing must use capabilities actually supported by the host.
+- Preserve the parent agent's model and reasoning settings. Model routing must use capabilities actually supported by the host. Authorized submission and issue-write workers use `gpt-6-luna` with `xhigh` reasoning when supported, unless the user explicitly selects another model.
 - Keep authentication and model choices configurable. A contributor should not need the maintainer's account, filesystem layout or preferred model.
 - Retain the complete evidence behind shortened output. Failed checks and uncertain writes must remain visible.
 - Measure the whole task, including workers, handoffs and retries. A shorter command response is not proof of lower account usage.
 
 ## Explore and contribute today
 
-Git and Python 3.11 or newer are enough to run the repository checks. No API key is needed.
+Git, Python 3.11 or newer and ripgrep are enough to run the repository checks and
+lookup helper. No API key is needed.
 
 ```bash
 git clone https://github.com/fws94/product9-token-saver.git
@@ -38,7 +41,7 @@ python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
 
-On systems where Python is named `python3`, use that command instead. These commands check the repository foundation; they do not install or run the planned token-saving features.
+On systems where Python is named `python3`, use that command instead. These commands check the repository and helper contract. Try `python scripts/token_saver.py --help` or `python scripts/token_saver.py contract` offline. See the [result contract](docs/result-contract.md) and [development installation/removal](docs/development-install.md). Use `python scripts/token_saver.py compact --input LOG --format test --max-lines 80` for captured output; see [compaction behavior and limits](docs/compact-output.md). Run an existing check with `python scripts/token_saver.py checks --cwd . --timeout 60 -- python -m unittest discover -s tests -v`; see [runner behavior](docs/run-checks.md). Locate repository content with `python scripts/token_saver.py lookup --root . --query needle --mode text --pattern-mode literal`; see [lookup behavior](docs/repo-lookup.md). Collect known PR status with `python scripts/token_saver.py status --provider github --repo OWNER/REPO --prs 1 2`; see [batch status behavior](docs/batch-status.md). Other runtime operations remain planned. Windows CLI compaction, check execution and development installation were tested; desktop UI and other platforms remain unverified.
 
 Start with [CONTRIBUTING.md](CONTRIBUTING.md), then choose a task from the [roadmap](docs/ROADMAP.md). Documentation improvements, reproducible examples, platform checks and measurement feedback are welcome. English and Chinese issues and pull requests are both welcome.
 
@@ -47,8 +50,8 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md), then choose a task from the [road
 ```text
 .github/       Issue forms, PR template, ownership and CI
 docs/          Roadmap, design direction and measurement rules
-scripts/       Repository checks; runtime helpers will be added through issues
-skills/        Reserved for reviewed skills; currently empty
+scripts/       Repository checks, CLI, result contract, compaction, checks, lookup, status and submission guidance helpers
+skills/        compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills; other skills remain planned
 tests/         Tests for repository tooling
 ```
 

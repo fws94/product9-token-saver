@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping make Token Saver useful and maintainable. English and Chinese contributions are welcome. Read the [project status](README.md) before starting; the planned runtime and plugin are not released yet.
+Thanks for helping make Token Saver useful and maintainable. English and Chinese contributions are welcome. Read the [project status](README.md) before starting; a development prerelease is available while some runtime helpers remain planned.
 
 ## Pick a focused change
 

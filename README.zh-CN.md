@@ -1,35 +1,37 @@
 # Token Saver
 
-[English](README.md) · [开发路线图](docs/ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [MIT 许可证](LICENSE)
+[English](README.md) · [开发路线图](docs/ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [发布包](docs/release.md) · [MIT 许可证](LICENSE)
 
 用于提高编程代理工作效率的小型 Skills 和确定性工具合集。
 
-项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个计划支持的环境是 Codex，独立工具尽可能保持可移植。
+项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个开发集成环境是 Codex，独立工具尽可能保持可移植。
 
-> **当前状态：早期开发。** 仓库已提供项目文档、协作模板和基础检查。运行时工具与可安装插件仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前还没有可安装版本。
+> **当前状态：早期开发。** 已实现开发版插件、离线 CLI、结果契约、已捕获输出精简、现有检查运行器、精准仓库检索和批量 GitHub 状态查询、已授权 Luna 提交说明、显式工单管理和本地用量报告、确定性发布打包和可选 RTK 测量说明。其余运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，首个 [v0.1.0-dev.12 预发布包](https://github.com/fws94/product9-token-saver/releases/tag/v0.1.0-dev.12) 可用于安装包含 compact-output、run-checks、repo-lookup、batch-status、luna-submit、issue-admin 和 usage-report Skills 的开发版插件；目前尚无稳定版本。
 
-## 计划提供的能力
+## 当前能力与路线图
 
 | 能力 | 预期行为 | 开发任务 |
 | --- | --- | --- |
-| 输出精简 | 压缩重复命令输出，保留错误与证据入口 | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
-| 检查运行器 | 执行现有 test、build、lint，返回简洁结果 | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
-| 精准检索 | 返回相关路径、行号和必要片段 | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
-| 批量状态查询 | 减少重复查询，汇总 PR、CI 和工单状态 | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
-| 常规操作委派 | 将已明确授权的提交与工单更新交给适合的工作代理 | [#6](https://github.com/fws94/product9-token-saver/issues/6)、[#7](https://github.com/fws94/product9-token-saver/issues/7) |
-| 用量报告 | 区分输入、缓存输入与输出，汇总设备本地报告 | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
+| 输出精简 | 已实现：精简已捕获日志，保留次数、错误与证据入口 | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
+| 检查运行器 | 已实现：运行约定命令，支持超时并保留完整输出 | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
+| 精准检索 | 已实现：返回有界路径、行号和必要片段 | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
+| 批量状态查询 | 已实现：一次只读查询汇总 GitHub PR 状态和检查摘要 | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
+| 常规操作委派 | 已实现提交委派和显式工单管理说明 | [#6](https://github.com/fws94/product9-token-saver/issues/6)、[#7](https://github.com/fws94/product9-token-saver/issues/7) |
+| 用量报告 | 已实现：采集并合并本地设备记录，保留覆盖警告 | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
+| 发布包 | 已实现：生成确定性归档并运行跨平台 CI；桌面发现仍需手动验证 | [#9](https://github.com/fws94/product9-token-saver/issues/9) |
+| 可选 RTK | 仅提供检测与测量说明；缺少平台证据时不启用适配器 | [#10](https://github.com/fws94/product9-token-saver/issues/10) |
 
 ## 设计原则
 
 - 明确、确定的工作优先使用工具；需要少量语言理解且值得交接的任务才使用轻量代理。
-- 保留主任务的模型与推理设置，模型委派必须使用宿主实际支持的能力。
+- 保留主任务的模型与推理设置，模型委派必须使用宿主实际支持的能力。已授权的提交和工单写入默认使用 `gpt-6-luna`，推理强度为 `xhigh`（极高）；用户显式指定其他模型时以用户选择为准。
 - 账号、目录和模型可配置，贡献者不需要使用维护者的个人环境。
 - 精简后的输出保留完整证据入口，失败检查和结果不确定的写入不能被隐藏。
 - 对整个任务计量，包括子代理、交接和重试。命令输出变短不能直接证明账号额度消耗下降。
 
 ## 现在可以怎样参与
 
-准备 Git 与 Python 3.11 或更新版本即可运行仓库检查，不需要 API Key。
+准备 Git、Python 3.11 或更新版本以及 ripgrep 即可运行仓库检查和检索工具，不需要 API Key。
 
 ```bash
 git clone https://github.com/fws94/product9-token-saver.git
@@ -38,17 +40,17 @@ python scripts/check_repository.py
 python -m unittest discover -s tests -v
 ```
 
-如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库基础内容，并非安装或运行规划中的省 token 功能。
+如果系统中的 Python 命令名是 `python3`，请相应替换。上述命令检查仓库与工具结果契约。可离线运行 `python scripts/token_saver.py --help` 或 `python scripts/token_saver.py contract`。参见[结果契约](docs/result-contract.md)及[开发版安装与移除](docs/development-install.md)（详细文档为英文）。可通过 `python scripts/token_saver.py compact --input LOG --format test --max-lines 80` 精简已捕获输出，参见[行为与限制](docs/compact-output.md)。可用 `python scripts/token_saver.py checks --cwd . --timeout 60 -- python -m unittest discover -s tests -v` 运行现有检查，参见[运行器说明](docs/run-checks.md)。使用 `python scripts/token_saver.py lookup --root . --query needle --mode text --pattern-mode literal` 进行精准检索，参见[检索说明](docs/repo-lookup.md)。使用 `python scripts/token_saver.py status --provider github --repo OWNER/REPO --prs 1 2` 批量查询已知 PR 状态，参见[批量状态说明](docs/batch-status.md)。其余运行时操作仍在规划中。已验证 Windows CLI 精简、检查执行与开发版安装；桌面 UI 和其他平台尚未验证。
 
-先阅读[贡献指南](CONTRIBUTING.md)，再从[路线图](docs/ROADMAP.md)选择任务。欢迎文档改进、最小复现、平台验证与计量反馈，也欢迎中文或英文 Issue、Pull Request。
+先阅读[贡献指南](CONTRIBUTING.md) · [发布包](docs/release.md)，再从[路线图](docs/ROADMAP.md)选择任务。欢迎文档改进、最小复现、平台验证与计量反馈，也欢迎中文或英文 Issue、Pull Request。
 
 ## 仓库结构
 
 ```text
 .github/       Issue 表单、PR 模板、维护者信息与 CI
 docs/          路线图、设计方向与测量规则
-scripts/       仓库检查；运行时工具将通过开发任务加入
-skills/        为审核后的 Skills 预留，目前为空
+scripts/       仓库检查、CLI、结果契约、输出精简、检查运行、检索、状态与提交说明工具
+skills/        compact-output、run-checks、repo-lookup、batch-status、luna-submit、issue-admin 与 usage-report Skills；其余 Skills 仍在规划中
 tests/         仓库工具的测试
 ```
 

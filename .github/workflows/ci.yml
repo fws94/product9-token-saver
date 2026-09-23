@@ -1,4 +1,4 @@
-name: Repository checks
+name: Cross-platform CI
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  repository-checks:
-    name: Repository checks (${{ matrix.os }})
+  verify:
+    name: Verify (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -40,5 +40,9 @@ jobs:
         run: rg --version
       - name: Check repository documentation
         run: python scripts/check_repository.py
-      - name: Test repository tooling
+      - name: Run synthetic tests
         run: python -m unittest discover -s tests -v
+      - name: Build deterministic development artifact
+        run: python scripts/token_saver.py package --plugin-root . --output dist
+      - name: Inspect artifact
+        run: python -c "import zipfile, pathlib; paths=list(pathlib.Path('dist').glob('*.zip')); assert len(paths)==1; assert zipfile.ZipFile(paths[0]).testzip() is None"

@@ -2,7 +2,7 @@
 
 ## Current support scope
 
-Token Saver is in early development and has no released runtime package. Security reports about the current default branch, repository automation or project instructions are welcome. Supported release versions will be listed here when releases exist.
+Token Saver is in early development. Version `v0.1.0-dev.12` is a development prerelease; no stable version is available. Security reports about this prerelease, the current default branch, repository automation or project instructions are welcome.
 
 ## Report privately
 
