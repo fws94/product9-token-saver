@@ -28,7 +28,7 @@ constructor does not validate; serialization revalidates mutable data.
 | --- | --- |
 | `completed` | All requested work completed with confirming evidence |
 | `failed` | A known failure prevented completion |
-| `partial` | Some requested targets/actions completed; others did not |
+| `partial` | The operation ran but one or more requested targets/actions remain unresolved; a status batch may have zero successful rows when every provider read failed |
 | `blocked` | A required input, permission or capability was unavailable |
 | `uncertain` | The outcome cannot be established, for example a remote write timed out |
 

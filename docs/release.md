@@ -2,15 +2,17 @@
 
 The repository can create a deterministic zip artifact without network access or
 third-party runtime packages. The manifest version is used in the archive
-metadata and should be bumped only for a reviewed release change.
+metadata. Do not reuse a published version for a different source tree; the
+current development checkout may be newer than the latest public prerelease.
 
 ```powershell
-python scripts/token_saver.py package --plugin-root . --output dist/token-saver-0.1.0-dev.12.zip
+python scripts/token_saver.py package --plugin-root . --output dist
 ```
 
-The first GitHub prerelease uses tag `v0.1.0-dev.12` and attaches this exact ZIP
-as its downloadable asset. This is a local marketplace source package, not an
-automatically installed Codex plugin.
+The first GitHub prerelease used tag `v0.1.0-dev.12` and attached
+`token-saver-0.1.0-dev.12.zip`. A new checkout build uses its own manifest
+version. These are local marketplace source packages, not automatically
+installed Codex plugins.
 
 The archive contains a `token-saver/` root with `.codex-plugin/plugin.json`,
 reviewed `scripts/`, `skills/`, `references/` and `docs/` files, plus README,
@@ -42,9 +44,10 @@ recursive delete against a shared marketplace root.
 ## Supported provider scope
 
 The packaged `status` command reads known GitHub PRs through an existing
-authenticated `gh` installation. GitLab and Linear status adapters are not
-included. Submission and issue administration are Skills that use the host's
-authorized provider tools; this package adds no connector or credential. RTK
+authenticated `gh` installation. The current development checkout adds
+GitLab/Linear read-only host-tool guidance; no GitLab or Linear executable
+status adapter is included. Submission and issue administration are Skills
+that use the host's authorized provider tools; this package adds no connector or credential. RTK
 remains optional guidance without an enabled adapter. The usage collector
 accepts the documented JSON/JSONL record shape and does not query account
 allowance or cost.

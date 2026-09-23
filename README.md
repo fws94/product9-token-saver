@@ -15,7 +15,7 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 | Compact output | Implemented: compact captured logs with counts and diagnostic evidence | [#2](https://github.com/fws94/product9-token-saver/issues/2) |
 | Run checks | Implemented: execute agreed commands with timeout and recoverable output | [#3](https://github.com/fws94/product9-token-saver/issues/3) |
 | Repository lookup | Implemented: return bounded paths, line numbers and excerpts | [#4](https://github.com/fws94/product9-token-saver/issues/4) |
-| Batch status | Implemented: collect read-only GitHub PR state and check summaries in one run | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
+| Batch status | Implemented: read-only GitHub PR adapter; guidance for GitLab MRs and Linear issues through available authenticated host tools | [#5](https://github.com/fws94/product9-token-saver/issues/5) |
 | Routine operations | Submission and explicit issue administration guidance is implemented | [#6](https://github.com/fws94/product9-token-saver/issues/6), [#7](https://github.com/fws94/product9-token-saver/issues/7) |
 | Usage reports | Implemented: collect and merge recorded local device usage with coverage warnings | [#8](https://github.com/fws94/product9-token-saver/issues/8) |
 | Release package | Implemented: build a deterministic archive and run cross-platform CI; desktop discovery remains manual | [#9](https://github.com/fws94/product9-token-saver/issues/9) |
