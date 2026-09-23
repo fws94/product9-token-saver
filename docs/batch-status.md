@@ -48,27 +48,39 @@ The packaged `status` CLI accepts only `--provider github`. For GitLab or Linear
 use an already available, authenticated **read-only** host tool. This is an agent
 workflow, not a bundled executable adapter or a request to install/connect a
 provider. Resolve the exact project or workspace and target identifiers first.
-If that identity is unavailable, mark those targets `blocked` and ask the
-parent for it rather than guessing a project or workspace. Deduplicate
+If that identity is unavailable, return an unknown row with
+`error.kind: missing-input` for each affected target and ask the parent rather
+than guessing a project or workspace. The envelope is `blocked` if no target
+can be queried, or `partial` if another target can be queried. Deduplicate
 identifiers in first-seen order; use one bounded batch call if the
 host supports it, otherwise at most four concurrent reads. Return one row per
 requested target in input order, including errors.
 
 | Provider | Read-only source | Row and check interpretation |
 | --- | --- | --- |
-| GitLab merge request | Read `GET /projects/:id/merge_requests/:iid` for the explicit project and MR IID. Use its `head_pipeline` only when the provider identifies it as the current MR pipeline. See [GitLab's merge request API](https://docs.gitlab.com/api/merge_requests/). | Keep the MR IID, `web_url`, and provider `state`. Current `head_pipeline.status` maps success to passed, failed/canceled to failed, and running/pending to pending. If the current pipeline is absent, hidden or ambiguous, checks are unknown. `detailed_merge_status` describes mergeability, not a CI check. |
+| GitLab merge request | Read `GET /projects/:id/merge_requests/:iid` for the explicit project and MR IID. Use its `head_pipeline` only when the provider identifies it as the current MR pipeline. See [GitLab's merge request API](https://docs.gitlab.com/api/merge_requests/). | Keep the MR IID, `web_url`, and provider `state`. Map a verified current `head_pipeline.status` to the shared `checks.state` values described below. If the current pipeline is absent, hidden or ambiguous, checks are unknown. `detailed_merge_status` describes mergeability, not a CI check. |
 | Linear issue | Read the identified issue with an existing authenticated GraphQL host tool, requesting its identifier, URL and workflow state. See [Linear's GraphQL guide](https://linear.app/developers/graphql). | Keep the issue identifier and workflow state name. Linear issue state is not a CI rollup, so `checks.state` is unknown unless a separately verified tool supplies check evidence. An HTTP 200 response with GraphQL `errors` is not complete success. |
 
 GitLab `:id` is the project ID or URL-encoded path, and `:iid` is scoped to
-that project; do not substitute a global MR ID.
+that project; do not substitute a global MR ID. For a verified current
+`head_pipeline`, map `success` to `checks.state: success`, `failed` or `canceled`
+to `failure`, and `created`, `waiting_for_resource`, `preparing`,
+`waiting_for_callback`, `pending`, `running`, `canceling`, `manual` or `scheduled`
+to `pending`. Treat `skipped` and unrecognized statuses as `unknown` rather
+than calling them passing. See [GitLab pipeline statuses](https://docs.gitlab.com/api/pipelines/).
 
-Use the same result contract as GitHub: `completed` means every target was read;
-`partial` means at least one row could not be read; `blocked` means the requested
-provider has no usable authenticated read-only tool. A mixed-provider batch
-with any usable read tool and at least one unread target is `partial`, even if
-all attempted reads fail; `blocked` applies when no target can be queried. Even when blocked,
-return an unknown row for each requested target with
-`error.kind: missing-capability`.
+Use the shared result envelope and check-state vocabulary: `completed` means
+every target was read; `partial` means at least one row could not be read after
+a read tool was available, even if every attempted read failed. A mixed-provider
+batch with any queryable target and an unread target is `partial`; `blocked`
+applies when no target can be queried because a tool or required identity is
+missing. For the GitLab/Linear host-tool route, preserve all target IDs in
+`data.requested` and return an unknown row for each blocked target, using
+`error.kind: missing-capability` for a missing tool and
+`missing-input` for a missing project/workspace. The packaged GitHub CLI has a
+different blocked preflight shape: when `gh` is absent, it keeps the IDs in
+`data.requested` and returns `data.rows: []`. Consumers should use `requested`
+to account for targets in either shape.
 Permission failures keep `state: UNKNOWN`, an unknown check summary and
 `error.kind: permission`; they never prove the target is absent. Mark `not-found`
 only when the provider explicitly establishes absence. If Linear returns data
