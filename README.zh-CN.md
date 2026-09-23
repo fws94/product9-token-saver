@@ -6,7 +6,7 @@
 
 项目希望减少冗长工具输出、重复上下文和不必要的模型工作，同时保留可核验的结果。首个开发集成环境是 Codex，独立工具尽可能保持可移植。
 
-> **当前状态：早期开发。** 已实现开发版插件、离线 CLI、结果契约、已捕获输出精简、现有检查运行器、精准仓库检索和批量 GitHub 状态查询、已授权 Luna 提交说明、显式工单管理和本地用量报告、确定性发布打包和可选 RTK 测量说明。其余运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，目前没有正式发布版本；可以安装包含 compact-output、run-checks、repo-lookup、batch-status、luna-submit、issue-admin 和 usage-report Skills 的开发版插件。
+> **当前状态：早期开发。** 已实现开发版插件、离线 CLI、结果契约、已捕获输出精简、现有检查运行器、精准仓库检索和批量 GitHub 状态查询、已授权 Luna 提交说明、显式工单管理和本地用量报告、确定性发布打包和可选 RTK 测量说明。其余运行时操作与 Skills 仍在 [#1–#10 开发任务](https://github.com/fws94/product9-token-saver/issues)中推进，首个 [v0.1.0-dev.12 预发布包](https://github.com/fws94/product9-token-saver/releases/tag/v0.1.0-dev.12) 可用于安装包含 compact-output、run-checks、repo-lookup、batch-status、luna-submit、issue-admin 和 usage-report Skills 的开发版插件；目前尚无稳定版本。
 
 ## 当前能力与路线图
 
@@ -24,7 +24,7 @@
 ## 设计原则
 
 - 明确、确定的工作优先使用工具；需要少量语言理解且值得交接的任务才使用轻量代理。
-- 保留主任务的模型与推理设置，模型委派必须使用宿主实际支持的能力。
+- 保留主任务的模型与推理设置，模型委派必须使用宿主实际支持的能力。已授权的提交和工单写入默认使用 `gpt-6-luna`，推理强度为 `xhigh`（极高）；用户显式指定其他模型时以用户选择为准。
 - 账号、目录和模型可配置，贡献者不需要使用维护者的个人环境。
 - 精简后的输出保留完整证据入口，失败检查和结果不确定的写入不能被隐藏。
 - 对整个任务计量，包括子代理、交接和重试。命令输出变短不能直接证明账号额度消耗下降。

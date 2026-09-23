@@ -32,6 +32,17 @@ def _summarize_checks(value: Any) -> dict[str, int | str]:
         if not isinstance(item, dict):
             summary["unknown"] += 1
             continue
+        if "state" in item and "status" not in item and "conclusion" not in item:
+            context_state = str(item.get("state") or "").upper()
+            if context_state in {"FAILURE", "ERROR"}:
+                summary["failed"] += 1
+            elif context_state == "SUCCESS":
+                summary["passed"] += 1
+            elif context_state in {"PENDING", "EXPECTED"}:
+                summary["pending"] += 1
+            else:
+                summary["unknown"] += 1
+            continue
         status = str(item.get("status") or "").upper()
         conclusion = str(item.get("conclusion") or "").upper()
         if conclusion in FAILURE_CONCLUSIONS:

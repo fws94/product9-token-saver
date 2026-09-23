@@ -1,6 +1,6 @@
 # Submission worker handoff contract
 
-The parent sends one packet to one `gpt-5.6-luna` worker. It is plain task data,
+The parent sends one packet to one `gpt-6-luna` worker. It is plain task data,
 not permission beyond the `authorized_actions` field.
 
 ```json
@@ -27,7 +27,7 @@ not permission beyond the `authorized_actions` field.
 }
 ```
 
-The packet must state the model/effort requested by the host (`gpt-5.6-luna`,
+The packet must state the model/effort requested by the host (`gpt-6-luna`,
 `xhigh`) and the configured account/provider choice when relevant. It must not
 contain tokens, cookies, credentials, full private logs or a request to broaden
 authorization. The worker owns remote writes for the target until it returns.

@@ -7,7 +7,7 @@ description: Use when a user explicitly requests a read-only issue lookup or a n
 
 This skill handles identified issue fields and explicitly requested comments only. It is separate from the
 `luna-submit` skill: read-only lookups use a direct authenticated provider tool;
-authorized writes use one `gpt-5.6-luna` worker at `xhigh` while the parent keeps
+authorized writes use one `gpt-6-luna` worker at `xhigh` while the parent keeps
 its own model settings.
 
 ## Before a write

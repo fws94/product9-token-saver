@@ -1,6 +1,6 @@
 {
   "name": "token-saver",
-  "version": "0.1.0-dev.11",
+  "version": "0.1.0-dev.12",
   "description": "Run checks, compact output, locate content, collect usage, package releases and document optional RTK integration.",
   "author": {
     "name": "Token Saver contributors"

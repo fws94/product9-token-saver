@@ -99,7 +99,8 @@ def _sources(source: str | Path) -> tuple[list[Path], str | None]:
 def _write_report(output: Path, payload: dict[str, Any]) -> tuple[bool, str | None]:
     try:
         output.expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+        transferable = {**payload, "evidence": [output.name]}
+        output.write_text(json.dumps(transferable, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     except OSError as error:
         return False, f"Unable to write usage report ({type(error).__name__})"
     return True, None
@@ -252,8 +253,13 @@ def merge_usage(inputs: list[str | Path], output: str | Path) -> Result:
     if not isinstance(inputs, list) or not inputs:
         raise ValueError("inputs must contain at least one report")
     reports: list[dict[str, Any]] = []
+    seen_paths: set[Path] = set()
+    seen_devices: set[str] = set()
     for item in inputs:
         path = Path(item).expanduser().resolve()
+        if path in seen_paths:
+            raise ValueError("The same usage report cannot be merged twice")
+        seen_paths.add(path)
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError) as error:
@@ -261,6 +267,14 @@ def merge_usage(inputs: list[str | Path], output: str | Path) -> Result:
         if not isinstance(payload, dict) or payload.get("schema_version") != SCHEMA_VERSION or not isinstance(payload.get("data"), dict):
             raise ValueError(f"Usage report {path} has unsupported schema")
         data = payload["data"]
+        if payload.get("operation") != "usage" or data.get("report_type") == "aggregate":
+            raise ValueError(f"Usage report {path} is not a device report")
+        device = data.get("device")
+        if not isinstance(device, str) or not device.strip():
+            raise ValueError(f"Usage report {path} has no device label")
+        if device in seen_devices:
+            raise ValueError(f"Device {device!r} appears in more than one usage report")
+        seen_devices.add(device)
         _validate_report_period(data.get("period"))
         coverage = data.get("coverage")
         if not isinstance(coverage, dict) or type(coverage.get("known")) is not bool:

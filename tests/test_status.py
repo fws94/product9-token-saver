@@ -63,6 +63,22 @@ class StatusTests(unittest.TestCase):
         self.assertLessEqual(runner.max_active, 2)
         self.assertTrue(all(command[:3] == ("fixture-gh", "pr", "view") for command in runner.calls))
 
+    def test_legacy_status_contexts_use_state_not_check_run_fields(self):
+        from token_saver_lib.status import collect_github_status
+        runner = FixtureRunner({
+            1: completed(1, checks=[{"__typename": "StatusContext", "state": "SUCCESS"}]),
+            2: completed(2, checks=[{"__typename": "StatusContext", "state": "FAILURE"}]),
+            3: completed(3, checks=[{"__typename": "StatusContext", "state": "ERROR"}]),
+            4: completed(4, checks=[{"__typename": "StatusContext", "state": "PENDING"}]),
+            5: completed(5, checks=[{"__typename": "StatusContext", "state": "EXPECTED"}]),
+        })
+        rows = collect_github_status("acme/repo", [1, 2, 3, 4, 5], runner=runner,
+                                     gh_path="fixture-gh").to_dict()["data"]["rows"]
+        self.assertEqual([row["checks"]["state"] for row in rows],
+                         ["success", "failure", "failure", "pending", "pending"])
+        self.assertEqual(rows[0]["checks"]["passed"], 1)
+        self.assertEqual(rows[1]["checks"]["failed"], 1)
+
     def test_unknown_and_missing_check_data_stay_distinct(self):
         from token_saver_lib.status import collect_github_status
         runner = FixtureRunner({

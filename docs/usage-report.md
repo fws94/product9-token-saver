@@ -30,7 +30,8 @@ reasoning output is a subset of output; do not add either field to its parent.
 `deduplication.records_seen` and `duplicates_removed` expose the local result.
 
 Device reports set `coverage.known` and include source-file/record counts and
-warnings. A missing source returns a blocked result with unknown (`null`)
+warnings. The JSON saved for transfer stores only its evidence filename relative
+to the report directory; the CLI result retains the local absolute evidence path. A missing source returns a blocked result with unknown (`null`)
 totals. Mixed `responses-v1` and `legacy-v0` formats remain usable but produce
 a mixed-format warning. Hash receipts are SHA-256 values of response IDs and
 never include prompts or raw IDs; without trusted provenance they cannot prove
@@ -41,8 +42,9 @@ It sums known totals and approval subsets, includes all input and coverage
 warnings, and reports `devices`. It always sets
 `deduplication.cross_device_provable` to false; if receipts are present it only
 counts duplicate receipt hashes and does not silently subtract their tokens.
-Unknown device totals cannot be merged as zero. Schema or period mismatches are
-usage errors (CLI exit 2).
+Unknown device totals cannot be merged as zero. Repeated resolved input paths,
+duplicate device labels and aggregate reports are rejected rather than counted
+twice. Schema, device or period mismatches are usage errors (CLI exit 2).
 
 ## Measurement limits
 

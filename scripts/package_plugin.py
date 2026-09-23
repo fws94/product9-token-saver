@@ -2,15 +2,31 @@
 from __future__ import annotations
 
 import json
+import stat
 from pathlib import Path
 import zipfile
 
 
-PUBLIC_ROOTS = (".codex-plugin", "docs", "references", "scripts", "skills")
-PUBLIC_FILES = ("LICENSE",)
-EXCLUDED_PARTS = {".git", ".codex", "scratch", "reports", "usage-reports", "receipts", "tests", "__pycache__"}
-PRIVATE_FILE_NAMES = {"credentials.json", "auth.json", "secrets.json"}
-PRIVATE_FILE_SUFFIXES = {".log", ".tmp"}
+# A reviewed allowlist keeps local, untracked files out of public artifacts.
+PUBLIC_PATHS = (
+    ".codex-plugin/plugin.json",
+    "LICENSE", "README.md", "README.zh-CN.md", "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md", "GOVERNANCE.md", "SECURITY.md",
+    "docs/ROADMAP.md", "docs/design.md", "docs/measurement.md",
+    "docs/development-install.md", "docs/release.md", "docs/result-contract.md",
+    "docs/compact-output.md", "docs/run-checks.md", "docs/repo-lookup.md",
+    "docs/batch-status.md", "docs/usage-report.md", "docs/rtk-integration.md",
+    "references/worker-handoff.md",
+    "scripts/check_repository.py", "scripts/package_plugin.py", "scripts/token_saver.py",
+    "scripts/token_saver_lib/__init__.py", "scripts/token_saver_lib/result.py",
+    "scripts/token_saver_lib/compact.py", "scripts/token_saver_lib/checks.py",
+    "scripts/token_saver_lib/lookup.py", "scripts/token_saver_lib/status.py",
+    "scripts/token_saver_lib/usage.py",
+    "skills/compact-output/SKILL.md", "skills/run-checks/SKILL.md",
+    "skills/repo-lookup/SKILL.md", "skills/batch-status/SKILL.md",
+    "skills/luna-submit/SKILL.md", "skills/issue-admin/SKILL.md",
+    "skills/usage-report/SKILL.md",
+)
 
 
 def _safe_component(value: object, field: str) -> str:
@@ -38,32 +54,25 @@ def _manifest(root: Path) -> tuple[str, str]:
 
 def _public_paths(root: Path, *, exclude: Path | None = None) -> list[Path]:
     paths: list[Path] = []
-    for name in PUBLIC_FILES:
-        candidate = root / name
-        if candidate.is_file():
-            paths.append(candidate)
-    for directory_name in PUBLIC_ROOTS:
-        directory = root / directory_name
-        if not directory.exists():
+    for relative in PUBLIC_PATHS:
+        candidate = root
+        for part in Path(relative).parts:
+            candidate = candidate / part
+            try:
+                attributes = candidate.lstat()
+            except OSError as error:
+                raise ValueError(f"Required public plugin file is missing: {relative}") from error
+            reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+            if (candidate.is_symlink()
+                    or getattr(attributes, "st_file_attributes", 0) & reparse_flag
+                    or not candidate.resolve().is_relative_to(root)):
+                raise ValueError(f"Plugin package cannot contain linked path {relative}")
+        if not candidate.is_file():
+            raise ValueError(f"Required public plugin file is missing: {relative}")
+        if exclude is not None and candidate.resolve() == exclude.resolve():
             continue
-        if not directory.is_dir() or directory.is_symlink():
-            raise ValueError(f"Plugin component {directory_name!r} is not a directory")
-        for candidate in sorted(directory.rglob("*")):
-            relative = candidate.relative_to(root)
-            if any(part in EXCLUDED_PARTS for part in relative.parts):
-                continue
-            if candidate.is_symlink():
-                raise ValueError(f"Plugin package cannot contain symlink {relative.as_posix()}")
-            if candidate.is_file():
-                if exclude is not None and candidate.resolve() == exclude.resolve():
-                    continue
-                if candidate.name.lower() in PRIVATE_FILE_NAMES or candidate.suffix.lower() in PRIVATE_FILE_SUFFIXES:
-                    continue
-                paths.append(candidate)
-    manifest = root / ".codex-plugin" / "plugin.json"
-    if manifest not in paths:
-        raise ValueError("Plugin manifest is missing from the public tree")
-    return sorted(set(paths), key=lambda path: path.relative_to(root).as_posix())
+        paths.append(candidate)
+    return sorted(paths, key=lambda item: item.relative_to(root).as_posix())
 
 
 def package_plugin(plugin_root: str | Path, output: str | Path):

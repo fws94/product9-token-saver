@@ -22,7 +22,9 @@ Every readable row contains `identifier`, `number`, `url`, normalized uppercase
 `state` is `success` when all reported checks completed with SUCCESS, SKIPPED or
 NEUTRAL; `failure` when any conclusion is FAILURE, CANCELLED, TIMED_OUT,
 ACTION_REQUIRED or STARTUP_FAILURE; `pending` when a check is not completed; and
-`unknown` when no rollup or an unrecognized conclusion is available. Counts for
+`unknown` when no rollup or an unrecognized conclusion is available. Legacy GitHub
+`StatusContext` entries use their `state` field: SUCCESS passes, FAILURE/ERROR
+fail, and PENDING/EXPECTED remain pending. Counts for
 `total`, `passed`, `failed`, `pending` and `unknown` remain in the object.
 
 An inaccessible target remains a row with `state: UNKNOWN`, an unknown check

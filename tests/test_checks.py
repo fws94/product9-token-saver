@@ -132,14 +132,30 @@ class ChecksTests(unittest.TestCase):
         self.assertEqual(result["exit_code"], 3)
         self.assertIn("--max-lines", result["data"]["stdout"]["data"]["text"])
 
-    def test_timeout_stops_a_spawned_child_before_delayed_write(self):
+    def test_timeout_stops_spawned_child_after_cleanup(self):
+        ready = self.cwd / "child-ready"
+        trigger = self.cwd / "allow-child-write"
         marker = self.cwd / "late-child-output"
-        child_code = f"import time; from pathlib import Path; time.sleep(1.5); Path({str(marker)!r}).touch()"
-        parent_code = f"import subprocess,sys,time; subprocess.Popen([sys.executable, '-c', {child_code!r}]); print('spawned', flush=True); time.sleep(30)"
-        result = self.run_check(parent_code, timeout=0.5)
-        self.assertTrue(result["data"]["termination_confirmed"])
+        child_code = (
+            "import time\nfrom pathlib import Path\n"
+            f"ready=Path({str(ready)!r}); trigger=Path({str(trigger)!r}); marker=Path({str(marker)!r})\n"
+            "ready.touch()\n"
+            "deadline=time.monotonic()+10\n"
+            "while time.monotonic()<deadline and not trigger.exists(): time.sleep(0.02)\n"
+            "if trigger.exists(): marker.touch()\n"
+        )
+        parent_code = (
+            "import subprocess,sys,time\n"
+            f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\n"
+            "print('spawned', flush=True)\n"
+            "time.sleep(30)\n"
+        )
+        result = self.run_check(parent_code, timeout=2)
+        self.assertTrue(ready.exists(), "child must start before the timeout")
+        self.assertTrue(result["data"]["tree_cleanup_confirmed"])
+        trigger.touch()
         time.sleep(1.5)
-        self.assertFalse(marker.exists(), "timed-out descendant must not continue its delayed check")
+        self.assertFalse(marker.exists(), "timed-out descendant must not continue after cleanup")
 
     def test_unwritable_artifact_destination_prevents_execution(self):
         self.assertIsNotNone(importlib.util.find_spec("token_saver_lib.checks"))

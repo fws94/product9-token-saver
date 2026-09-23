@@ -6,7 +6,7 @@ Small skills and deterministic helpers for more efficient coding-agent workflows
 
 Token Saver aims to reduce noisy tool output, repeated context and unnecessary model work while keeping results verifiable. Codex is the first development integration; helpers should stay portable where practical.
 
-> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance, explicit issue administration and local usage reports, deterministic release packaging and optional RTK measurement guidance are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). There is no published release yet; a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills is available.
+> **Status: early development.** The development plugin, offline CLI, result contract, captured-output compaction, existing-check runner, repository lookup, batched GitHub status, authorized Luna submission guidance, explicit issue administration and local usage reports, deterministic release packaging and optional RTK measurement guidance are implemented. Remaining runtime operations and skills are planned in [issues #1–#10](https://github.com/fws94/product9-token-saver/issues). The [v0.1.0-dev.12 prerelease](https://github.com/fws94/product9-token-saver/releases/tag/v0.1.0-dev.12) provides a development installation with compact-output, run-checks, repo-lookup, batch-status, luna-submit, issue-admin and usage-report skills; there is no stable release yet.
 
 ## Capabilities and roadmap
 
@@ -24,7 +24,7 @@ Token Saver aims to reduce noisy tool output, repeated context and unnecessary m
 ## Principles
 
 - Use deterministic tools for well-defined work and small workers for bounded tasks that benefit from language understanding.
-- Preserve the parent agent's model and reasoning settings. Model routing must use capabilities actually supported by the host.
+- Preserve the parent agent's model and reasoning settings. Model routing must use capabilities actually supported by the host. Authorized submission and issue-write workers use `gpt-6-luna` with `xhigh` reasoning when supported, unless the user explicitly selects another model.
 - Keep authentication and model choices configurable. A contributor should not need the maintainer's account, filesystem layout or preferred model.
 - Retain the complete evidence behind shortened output. Failed checks and uncertain writes must remain visible.
 - Measure the whole task, including workers, handoffs and retries. A shorter command response is not proof of lower account usage.

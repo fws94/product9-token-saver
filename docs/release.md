@@ -5,13 +5,20 @@ third-party runtime packages. The manifest version is used in the archive
 metadata and should be bumped only for a reviewed release change.
 
 ```powershell
-python scripts/token_saver.py package --plugin-root . --output dist/token-saver-0.1.0-dev.11.zip
+python scripts/token_saver.py package --plugin-root . --output dist/token-saver-0.1.0-dev.12.zip
 ```
 
+The first GitHub prerelease uses tag `v0.1.0-dev.12` and attaches this exact ZIP
+as its downloadable asset. This is a local marketplace source package, not an
+automatically installed Codex plugin.
+
 The archive contains a `token-saver/` root with `.codex-plugin/plugin.json`,
-`scripts/`, `skills/`, `references/`, selected top-level `docs/` and `LICENSE`.
-Entries are sorted, timestamps are fixed and private `tests/`, `scratch/`,
-reports, credentials, sessions and build state are excluded. Inspect the file
+reviewed `scripts/`, `skills/`, `references/` and `docs/` files, plus README,
+contribution, governance, security and license documents. Its contents come
+from an explicit public-file allowlist. Entries are sorted, timestamps are fixed
+and private `tests/`, `scratch/`, reports, credentials, sessions and build state
+are excluded even when local untracked files sit under a public directory.
+Symlinks and Windows directory junctions in allowlisted paths are rejected. Inspect the file
 list before sharing it. Manifest names and versions must be single safe path
 components, so they cannot escape the archive root or the requested output
 directory. The package is a development artifact; it is not a
@@ -32,6 +39,16 @@ Remove with `codex plugin remove token-saver@<marketplace>` and read back
 installed cache, not source files or unrelated marketplace entries. Never run a
 recursive delete against a shared marketplace root.
 
+## Supported provider scope
+
+The packaged `status` command reads known GitHub PRs through an existing
+authenticated `gh` installation. GitLab and Linear status adapters are not
+included. Submission and issue administration are Skills that use the host's
+authorized provider tools; this package adds no connector or credential. RTK
+remains optional guidance without an enabled adapter. The usage collector
+accepts the documented JSON/JSONL record shape and does not query account
+allowance or cost.
+
 ## Five-device reports
 
 Each device creates its own local report and keeps its source path private:
@@ -48,7 +65,8 @@ to combine:
 python scripts/token_saver.py usage-merge --inputs usage-reports/device-1.json usage-reports/device-2.json usage-reports/device-3.json usage-reports/device-4.json usage-reports/device-5.json --output usage-reports/all-devices.json
 ```
 
-The merge validates schema and identical periods, preserves warnings and flags
+The merge validates schema, distinct device labels and identical periods,
+rejects repeated inputs and aggregate reports, preserves warnings and flags
 that aggregate-only data cannot prove cross-device response deduplication. A
 missing device is unknown coverage, not zero. Hash receipts can detect repeated
 response hashes without exporting prompts, but they cannot establish the

@@ -21,7 +21,7 @@ baseline was run without the skill before authoring the repository copy.
 | Authorized commit, push and PR; push times out | Read remote ref/PR, retry only when absence is proven, then read back commit and PR; no merge | `status` and `remote_readback` |
 | Push result is uncertain | Stop duplicate writes, reconcile ref/history and existing PR, otherwise return `uncertain` | `retries` or blocker |
 | git/gh missing | Do not install automatically; return `blocked` with missing capability | `remaining` |
-| Luna xhigh unavailable | Do not change parent model or substitute another model; return `blocked` | requested model/effort and blocker |
+| `gpt-6-luna` at `xhigh` unavailable | Do not change parent model or substitute another model; return `blocked` | requested model/effort and blocker |
 | Worker receives a recursive delegation request | Do not spawn; return `blocked` and identify the recursive request | `delegation_depth: 0` |
 | PR creation requested | Create/read back PR only; merge and auto-merge remain excluded | PR URL/state |
 

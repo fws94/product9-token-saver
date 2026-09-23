@@ -86,13 +86,24 @@ class UsageTests(unittest.TestCase):
         self.assertEqual(len(result["data"]["response_receipts"]), 1)
         self.assertFalse(result["data"]["deduplication"]["cross_device_provable"])
 
+    def test_transferable_device_report_omits_local_absolute_output_path(self):
+        write_jsonl(self.logs / "events.jsonl", [{
+            "timestamp": "2026-09-10T00:00:00Z", "response_id": "first",
+            "usage": {"input_tokens": 2, "output_tokens": 1}
+        }])
+        result = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        stored = json.loads(self.output.read_text(encoding="utf-8"))
+        self.assertIn(str(self.output.resolve()), result["evidence"])
+        self.assertNotIn(str(self.output.resolve()), json.dumps(stored, ensure_ascii=False))
+        self.assertEqual(stored["evidence"], [self.output.name])
+
     def test_merge_five_reports_keeps_warnings_and_flags_cross_device_limit(self):
         from token_saver_lib.usage import merge_usage
         reports = []
         for index in range(5):
             path = self.root / f"device-{index}.json"
-            payload = {"schema_version": 1, "report_type": "device", "device": f"d{index}",
-                       "data": {"schema_version": 1, "period": {"start": "2026-09-01T00:00:00+00:00", "end_exclusive": "2026-09-02T00:00:00+00:00"},
+            payload = {"schema_version": 1, "operation": "usage", "status": "completed",
+                       "data": {"schema_version": 1, "device": f"d{index}", "period": {"start": "2026-09-01T00:00:00+00:00", "end_exclusive": "2026-09-02T00:00:00+00:00"},
                                 "totals": {"responses": 1, "input_tokens": index + 1, "cached_input_tokens": 0, "output_tokens": 2, "reasoning_output_tokens": 1},
                                 "automatic_approval": {"records": 0, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
                                 "coverage": {"known": True, "warnings": [f"device {index} synthetic gap"]},
@@ -108,6 +119,45 @@ class UsageTests(unittest.TestCase):
         self.assertGreaterEqual(len(result["warnings"]), 5)
         self.assertTrue(any("cross-device" in warning.lower() for warning in result["warnings"]))
 
+    def test_merge_rejects_same_device_report_path_twice(self):
+        from token_saver_lib.usage import merge_usage
+        write_jsonl(self.logs / "events.jsonl", [{
+            "timestamp": "2026-09-10T00:00:00Z", "response_id": "first",
+            "usage": {"input_tokens": 2, "output_tokens": 1}
+        }])
+        report = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        self.assertEqual(report["status"], "completed")
+        with self.assertRaises(ValueError):
+            merge_usage([self.output, self.output], self.root / "reports/duplicate.json")
+
+    def test_merge_rejects_same_device_label_in_two_files(self):
+        from token_saver_lib.usage import merge_usage
+        write_jsonl(self.logs / "events.jsonl", [{
+            "timestamp": "2026-09-10T00:00:00Z", "response_id": "first",
+            "usage": {"input_tokens": 2, "output_tokens": 1}
+        }])
+        report = self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        self.assertEqual(report["status"], "completed")
+        second = self.root / "reports/renamed-copy.json"
+        shutil.copyfile(self.output, second)
+        with self.assertRaises(ValueError):
+            merge_usage([self.output, second], self.root / "reports/two-copies.json")
+
+    def test_merge_rejects_aggregate_even_with_device_label(self):
+        from token_saver_lib.usage import merge_usage
+        write_jsonl(self.logs / "events.jsonl", [{
+            "timestamp": "2026-09-10T00:00:00Z", "response_id": "first",
+            "usage": {"input_tokens": 2, "output_tokens": 1}
+        }])
+        self.collect(start="2026-09-10", end="2026-09-10", utc_offset=0)
+        aggregate_path = self.root / "reports/aggregate.json"
+        merge_usage([self.output], aggregate_path)
+        aggregate = json.loads(aggregate_path.read_text(encoding="utf-8"))
+        aggregate["data"]["device"] = "misleading-device"
+        aggregate_path.write_text(json.dumps(aggregate), encoding="utf-8")
+        with self.assertRaises(ValueError):
+            merge_usage([aggregate_path], self.root / "reports/double-counted.json")
+
     def test_merge_rejects_schema_or_period_mismatch(self):
         from token_saver_lib.usage import merge_usage
         first = self.root / "first.json"
@@ -122,6 +172,15 @@ class UsageTests(unittest.TestCase):
         self.assertEqual(json.loads(run.stdout)["status"], "blocked")
         self.assertTrue(self.output.is_file())
 
+    def test_cli_usage_error_stderr_is_utf8_for_unicode_paths(self):
+        missing = self.root / "不存在.json"
+        run = subprocess.run([
+            sys.executable, str(ROOT / "scripts/token_saver.py"), "usage-merge",
+            "--inputs", str(missing), "--output", str(self.output)
+        ], capture_output=True, text=True, encoding="utf-8", timeout=10)
+        self.assertEqual(run.returncode, 2)
+        self.assertIn("不存在.json", run.stderr)
+
     def test_cli_merge_returns_aggregate_report(self):
         report = self.root / "device.json"
         report.write_text(json.dumps({
@@ -129,6 +188,7 @@ class UsageTests(unittest.TestCase):
             "operation": "usage",
             "status": "completed",
             "data": {
+                "device": "cli-device",
                 "period": {"start": "2026-09-10T00:00:00+00:00", "end_exclusive": "2026-09-11T00:00:00+00:00"},
                 "totals": {"responses": 1, "input_tokens": 2, "cached_input_tokens": 1, "output_tokens": 3, "reasoning_output_tokens": 1},
                 "automatic_approval": {"records": 0, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
@@ -200,6 +260,7 @@ class UsageTests(unittest.TestCase):
             report = self.root / f"receipt-{index}.json"
             report.write_text(json.dumps({
                 "schema_version": 1, "operation": "usage", "data": {
+                    "device": f"receipt-device-{index}",
                     "period": {"start": "2026-09-10T00:00:00+00:00", "end_exclusive": "2026-09-11T00:00:00+00:00"},
                     "totals": {"responses": 1, "input_tokens": 1, "cached_input_tokens": 0, "output_tokens": 1, "reasoning_output_tokens": 0},
                     "automatic_approval": {"records": 0, "input_tokens": 0, "cached_input_tokens": 0, "output_tokens": 0, "reasoning_output_tokens": 0},
